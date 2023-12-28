@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# Copyright 2022-2023 GlitchyByte
+# SPDX-License-Identifier: MIT
+
+# _gcolors v1.2.0
+
+# Find out terminal color support.
+readonly _tput_colors="$(tput colors 2>/dev/null)"
+if [[ -n "${_tput_colors}" && "${_tput_colors}" != "0" ]]; then
+  readonly term_color_count="${_tput_colors}"
+else
+  readonly term_color_count="0"
+fi
+
+# Define basic colors.
+if [ "${term_color_count}" -eq "0" ]; then
+  # Color control.
+  readonly c_reset=""
+  readonly c_bold=""
+  # Foreground colors.
+  readonly cf_black=""
+  readonly cf_red=""
+  readonly cf_green=""
+  readonly cf_yellow=""
+  readonly cf_blue=""
+  readonly cf_magenta=""
+  readonly cf_cyan=""
+  readonly cf_white=""
+  # Background colors.
+  readonly cb_black=""
+  readonly cb_red=""
+  readonly cb_green=""
+  readonly cb_yellow=""
+  readonly cb_blue=""
+  readonly cb_magenta=""
+  readonly cb_cyan=""
+  readonly cb_white=""
+else
+  # Color control.
+  readonly c_reset="$(tput sgr0)"
+  readonly c_bold="$(tput bold)"
+  # Foreground colors.
+  readonly cf_black="$(tput setaf 0)"
+  readonly cf_red="$(tput setaf 1)"
+  readonly cf_green="$(tput setaf 2)"
+  readonly cf_yellow="$(tput setaf 3)"
+  readonly cf_blue="$(tput setaf 4)"
+  readonly cf_magenta="$(tput setaf 5)"
+  readonly cf_cyan="$(tput setaf 6)"
+  readonly cf_white="$(tput setaf 7)"
+  # Background colors.
+  readonly cb_black=$(tput setab 0)
+  readonly cb_red=$(tput setab 1)
+  readonly cb_green=$(tput setab 2)
+  readonly cb_yellow=$(tput setab 3)
+  readonly cb_blue=$(tput setab 4)
+  readonly cb_magenta=$(tput setab 5)
+  readonly cb_cyan=$(tput setab 6)
+  readonly cb_white=$(tput setab 7)
+fi
+
+color256() {
+  if [ "${term_color_count}" -lt "256" ]; then
+    echo ""
+    return
+  fi
+  local r=$1
+  local g=$2
+  local b=$3
+  local value=$((16 + (36 * r) + (6 * g) + b))
+  echo "$(tput setaf ${value})"
+}
+
+# Custom colors.
+if [ "${term_color_count}" -eq "0" ]; then
+  readonly cc_error=""
+elif [ "${term_color_count}" -eq "8" ]; then
+  readonly cc_error="${c_reset}${cf_red}${c_bold}"
+else
+  readonly cc_error="${c_reset}$(color256 5 0 1)"
+fi
+
+# Echo to stderr.
+echoerr() {
+  >&2 echo "${cc_error}$@${c_reset}"
+}
+
+# Snippet to test and pick colors.
+# for c in {16..255}; do tput setaf $c; echo "${c}"; done | column -c 200
