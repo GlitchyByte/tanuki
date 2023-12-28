@@ -15,10 +15,16 @@ import java.nio.file.Path;
 public final class App implements Runnable {
 
     public static void main(final String[] args) {
-        final AppParameters parameters = new AppParameters(args);
-        if (!parameters.isValid()) {
+        if (args.length == 0) {
             printUsage();
-            System.exit(parameters.getErrorCode());
+            return;
+        }
+        final AppParameters parameters = new AppParameters(args);
+        try {
+            parameters.validate();
+        } catch (final IllegalArgumentException e) {
+            GTerminal.println(GTerminal.text(e.getMessage(), errorColor));
+            System.exit(1);
         }
         final App app = new App(parameters.getCommand(), parameters.getProjectRoot(), parameters.getInput());
         app.run();
