@@ -5,7 +5,7 @@ package com.glitchybyte.tanuki;
 
 import java.util.List;
 
-public final class TanukiInput {
+public final class TanukiConfig {
 
     public static final class Project {
 
@@ -29,7 +29,7 @@ public final class TanukiInput {
 
     public final List<Project> projects;
 
-    public TanukiInput(final List<Project> projects) {
+    public TanukiConfig(final List<Project> projects) {
         this.projects = projects;
     }
 }

@@ -14,7 +14,7 @@ public final class AppParameters {
     private final String[] args;
     private String command;
     private Path projectRoot;
-    private TanukiInput input;
+    private TanukiConfig config;
 
     public AppParameters(final String[] args) {
         if (args.length == 0) {
@@ -25,8 +25,11 @@ public final class AppParameters {
 
     public void validate() {
         command = args[0];
+        if (command.equals("-h") || command.equals("--help")) {
+            return;
+        }
         if (!command.equals("build") && !command.equals("watch")) {
-            throw new IllegalArgumentException("Must be 'build' or 'watch'!");
+            throw new IllegalArgumentException("Command must be 'build' or 'watch'!");
         }
         final String configFile = args.length < 2 ? "./tanuki.json" : args[1];
         if (args.length > 2) {
@@ -37,7 +40,7 @@ public final class AppParameters {
             throw new IllegalArgumentException("Tanuki config file not found!");
         }
         projectRoot = path.getParent();
-        input = GJson.fromPath(path, TanukiInput.class);
+        config = GJson.fromPath(path, TanukiConfig.class);
     }
 
     public String getCommand() {
@@ -48,7 +51,7 @@ public final class AppParameters {
         return projectRoot;
     }
 
-    public TanukiInput getInput() {
-        return input;
+    public TanukiConfig getConfig() {
+        return config;
     }
 }
