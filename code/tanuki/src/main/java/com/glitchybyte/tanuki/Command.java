@@ -9,11 +9,6 @@ import java.nio.file.Path;
 
 public abstract class Command implements Runnable {
 
-    protected static final int errorColor = GTerminal.rgb(5, 1, 1);
-    protected static final int headingColor = GTerminal.rgb(1, 5, 3);
-    protected static final int textColor = GTerminal.rgb(1, 1, 1);
-    protected static final int highlightColor = GTerminal.rgb(5, 5, 5);
-
     protected final Path projectRoot;
     protected final TanukiConfig config;
 
@@ -23,7 +18,7 @@ public abstract class Command implements Runnable {
     }
 
     protected void panic(final String message) {
-        GTerminal.println(GTerminal.text(message, errorColor));
+        GTerminal.println(GTerminal.text(message, Colors.error));
         System.exit(2);
     }
 }

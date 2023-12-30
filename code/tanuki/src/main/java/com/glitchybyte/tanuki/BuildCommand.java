@@ -27,25 +27,25 @@ public final class BuildCommand extends Command {
             }
             // Build.
             GTerminal.println("%s: %s (%s)",
-                    GTerminal.text("Building", headingColor),
-                    GTerminal.text(subproject.name, highlightColor),
-                    GTerminal.text(subproject.build, textColor)
+                    GTerminal.text("Building", Colors.heading),
+                    GTerminal.text(subproject.name, Colors.highlight),
+                    GTerminal.text(subproject.build, Colors.text)
             );
             final GProcessResult buildResult = GOSInterface.instance.executeWithResult(
                     GOSInterface.instance.makeCommand(subproject.build), subprojectDir);
-            buildResult.output.forEach(line -> GTerminal.println(GTerminal.text(line, textColor)));
+            buildResult.output.forEach(line -> GTerminal.println(GTerminal.text(line, Colors.text)));
             if (!GOSInterface.instance.isSuccessfulExitCode(buildResult.exitCode)) {
                 panic(GStrings.format("Build error! (code: %d)", buildResult.exitCode));
             }
             // Copy.
             GTerminal.println("%s: %s (%s)",
-                    GTerminal.text("Copying", headingColor),
-                    GTerminal.text(subproject.name, highlightColor),
-                    GTerminal.text(subproject.copy, textColor)
+                    GTerminal.text("Copying", Colors.heading),
+                    GTerminal.text(subproject.name, Colors.highlight),
+                    GTerminal.text(subproject.copy, Colors.text)
             );
             final GProcessResult copyResult = GOSInterface.instance.executeWithResult(
                     GOSInterface.instance.makeCommand(subproject.copy), projectRoot);
-            copyResult.output.forEach(line -> GTerminal.println(GTerminal.text(line, textColor)));
+            copyResult.output.forEach(line -> GTerminal.println(GTerminal.text(line, Colors.text)));
             if (!GOSInterface.instance.isSuccessfulExitCode(copyResult.exitCode)) {
                 panic(GStrings.format("Copy error! (code: %d)", copyResult.exitCode));
             }

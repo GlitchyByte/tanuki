@@ -18,8 +18,7 @@ public final class App implements Runnable {
         try {
             parameters.validate();
         } catch (final IllegalArgumentException e) {
-            final int errorColor = GTerminal.rgb(5, 1, 1);
-            GTerminal.println(GTerminal.text(e.getMessage(), errorColor));
+            GTerminal.println(GTerminal.text(e.getMessage(), Colors.error));
             System.exit(1);
         }
         final App app = new App(parameters.getCommand(), parameters.getProjectRoot(), parameters.getConfig());
@@ -27,13 +26,11 @@ public final class App implements Runnable {
     }
 
     private static void printUsage() {
-        final int cmdColor = GTerminal.rgb(3, 5, 3);
-        final int argColor = GTerminal.rgb(0, 2, 0);
-        final String app = GTerminal.text("tanuki", cmdColor);
-        final String build = GTerminal.text("build", argColor);
-        final String watch = GTerminal.text("watch", argColor);
-        final String config = GTerminal.text("config_file", argColor);
-        final String help = GTerminal.text("-h, --help", argColor);
+        final String app = GTerminal.text("tanuki", Colors.cmd);
+        final String build = GTerminal.text("build", Colors.arg);
+        final String watch = GTerminal.text("watch", Colors.arg);
+        final String config = GTerminal.text("config_file", Colors.arg);
+        final String help = GTerminal.text("-h, --help", Colors.arg);
         GTerminal.print("""
                 Watch and build a project portfolio.
                 Usage:
