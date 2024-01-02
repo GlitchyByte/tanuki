@@ -10,6 +10,7 @@ import com.glitchybyte.glib.concurrent.GTaskRunnerService;
 import com.glitchybyte.glib.concurrent.event.GEvent;
 import com.glitchybyte.glib.concurrent.event.GEventLink;
 import com.glitchybyte.glib.concurrent.event.GEventReceiver;
+import com.glitchybyte.glib.process.GOSInterface;
 import com.glitchybyte.glib.terminal.GTerminal;
 
 import java.nio.file.Files;
@@ -80,7 +81,20 @@ public final class WatchCommand extends Command {
 
     private void changeHandler(final GEvent event) {
         final ChangeEventData data = event.getDataAs(ChangeEventData.class);
-        GTerminal.println("handler: %s", data.subproject().name);
+        final TanukiConfig.Project subproject = data.subproject();
+        // Build.
+        final Integer buildExitCode = build(subproject);
+        if (GOSInterface.instance.isSuccessfulExitCode(buildExitCode)) {
+            // Copy.
+            final Integer copyExitCode = copy(subproject);
+            if (!GOSInterface.instance.isSuccessfulExitCode(copyExitCode)) {
+                GTerminal.println(GTerminal.text(GStrings.format("Copy error! (code: %d)", copyExitCode), Colors.error));
+            }
+        } else {
+            GTerminal.println(GTerminal.text(GStrings.format("Build error! (code: %d)", buildExitCode), Colors.error));
+        }
+        // Watch summary.
+        GTerminal.println("-".repeat(64));
         GTerminal.println(watchingSummary);
     }
 }
