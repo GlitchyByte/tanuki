@@ -13,6 +13,8 @@ import java.nio.file.Path;
 
 public abstract class Command implements Runnable {
 
+    public static final String CHANGE_EVENT_TYPE = "change";
+
     protected final Path projectRoot;
     protected final TanukiConfig config;
 

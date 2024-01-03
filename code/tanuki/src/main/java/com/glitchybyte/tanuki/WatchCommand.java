@@ -35,10 +35,10 @@ public final class WatchCommand extends Command {
         collectDirectoriesToWatch();
         try (final GTaskRunnerService runner = new GTaskRunnerService();
             final GEventReceiver eventReceiver = eventLink.createEventReceiver(this::changeHandler)
-                    .subscribeTo(ChangeEventData.TYPE)
+                    .subscribeTo(CHANGE_EVENT_TYPE)
         ) {
             for (final var entry: subprojects.entrySet()) {
-                eventLink.send(ChangeEventData.TYPE, new ChangeEventData(entry.getKey()));
+                eventLink.send(CHANGE_EVENT_TYPE, entry.getKey());
                 runner.start(new WatchBuild(entry.getKey(), entry.getValue(), eventLink));
             }
             GShutdownMonitor.createShutdownMonitor().awaitShutdown();
@@ -80,8 +80,7 @@ public final class WatchCommand extends Command {
     }
 
     private void changeHandler(final GEvent event) {
-        final ChangeEventData data = event.getDataAs(ChangeEventData.class);
-        final TanukiConfig.Project subproject = data.subproject();
+        final TanukiConfig.Project subproject = event.getDataAs(TanukiConfig.Project.class);
         // Build.
         final Integer buildExitCode = build(subproject);
         if (GOSInterface.instance.isSuccessfulExitCode(buildExitCode)) {

@@ -43,7 +43,7 @@ public final class WatchBuild extends GTask {
                     GLog.severe("Can't reset watch key. Exiting!");
                     return;
                 }
-                eventSender.send(ChangeEventData.TYPE, new ChangeEventData(subproject));
+                eventSender.send(Command.CHANGE_EVENT_TYPE, subproject);
             }
         } catch (final IOException e) {
             GLog.severe(e);
