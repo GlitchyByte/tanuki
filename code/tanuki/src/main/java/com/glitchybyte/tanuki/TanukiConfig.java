@@ -20,16 +20,14 @@ public final class TanukiConfig {
         public final String projectDir;
         public final List<String> watchDirs;
         public final String build;
-        public final String outputDir;
         public final String copy;
 
-        public Project(final String name, final String projectDir, final List<String> watchDirs, final String build,
-                final String outputDir, final String copy) {
+        public Project(final String name, final String projectDir, final List<String> watchDirs,
+                final String build, final String copy) {
             this.name = name;
             this.projectDir = projectDir;
             this.watchDirs = watchDirs;
             this.build = build;
-            this.outputDir = outputDir;
             this.copy = copy;
         }
 
@@ -40,7 +38,6 @@ public final class TanukiConfig {
                     ", projectDir='" + projectDir + '\'' +
                     ", watchDirs=" + watchDirs +
                     ", build='" + build + '\'' +
-                    ", outputDir='" + outputDir + '\'' +
                     ", copy='" + copy + '\'' +
                     '}';
         }
@@ -99,7 +96,6 @@ public final class TanukiConfig {
             String projectDir = null;
             List<String> watchDirs = null;
             String build = null;
-            String outputDir = null;
             String copy = null;
             in.beginObject();
             while (in.hasNext()) {
@@ -119,13 +115,12 @@ public final class TanukiConfig {
                         in.endArray();
                     }
                     case "build" -> build = in.nextString();
-                    case "outputDir" -> outputDir = in.nextString();
                     case "copy" -> copy = in.nextString();
                     default -> in.skipValue();
                 }
             }
             in.endObject();
-            return new Project(name, projectDir, watchDirs, build, outputDir, copy);
+            return new Project(name, projectDir, watchDirs, build, copy);
         }
 
         @Override
