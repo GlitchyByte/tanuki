@@ -1,16 +1,20 @@
-// Copyright 2023 GlitchyByte
+// Copyright 2023-2024 GlitchyByte
 // SPDX-License-Identifier: Apache-2.0
 
 package com.glitchybyte.tanuki;
 
 import com.glitchybyte.glib.GPaths;
 import com.glitchybyte.glib.json.GJson;
+import com.google.gson.GsonBuilder;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public final class AppParameters {
 
+    private final GJson json = new GJson(new GsonBuilder()
+            .registerTypeAdapter(TanukiConfig.class, new TanukiConfig.JsonAdapter())
+            .create());
     private final String[] args;
     private String command;
     private Path projectRoot;
@@ -40,7 +44,7 @@ public final class AppParameters {
             throw new IllegalArgumentException("Tanuki config file not found!");
         }
         projectRoot = path.getParent();
-        config = GJson.fromPath(path, TanukiConfig.class);
+        config = json.fromPath(path, TanukiConfig.class);
     }
 
     public String getCommand() {
