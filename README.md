@@ -1,6 +1,6 @@
 # tanuki
 
-![Version](https://img.shields.io/badge/Version-1.0.0-blue)
+![Version](https://img.shields.io/badge/Version-1.1.0-blue)
 ![Java](https://img.shields.io/badge/Java-21-orange)
 
 Project portfolio watcher and builder.
@@ -63,4 +63,4 @@ The config file is better explained with an example:
 ```
 
 Just pay attention when a directory is either `relative to config file` or `relative to projectDir`.
-And remove the comments. Json doesn't allow comments. They are just explanatory in this document.
+And remove the comments, json doesn't allow comments, they are just explanatory in this document.

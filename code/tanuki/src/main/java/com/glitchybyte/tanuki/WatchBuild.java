@@ -4,23 +4,24 @@
 package com.glitchybyte.tanuki;
 
 import com.glitchybyte.glib.concurrent.GTask;
-import com.glitchybyte.glib.concurrent.event.GEventSender;
 import com.glitchybyte.glib.log.GLog;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
+import java.util.function.Consumer;
 
 public final class WatchBuild extends GTask {
 
+    private final Consumer<TanukiConfig.Project> changeHandler;
     private final TanukiConfig.Project subproject;
     private final List<Path> paths;
-    private final GEventSender eventSender;
 
-    public WatchBuild(final TanukiConfig.Project subproject, final List<Path> paths, final GEventSender eventSender) {
+    public WatchBuild(final Consumer<TanukiConfig.Project> changeHandler, final TanukiConfig.Project subproject,
+            final List<Path> paths) {
+        this.changeHandler = changeHandler;
         this.subproject = subproject;
         this.paths = paths;
-        this.eventSender = eventSender;
     }
 
     @Override
@@ -38,12 +39,14 @@ public final class WatchBuild extends GTask {
             // Watch loop.
             while (true) {
                 final WatchKey key = watchService.take();
-                key.pollEvents();
+                final var events = key.pollEvents();
+                if ((events != null) && !events.isEmpty()) {
+                    changeHandler.accept(subproject);
+                }
                 if (!key.reset()) {
                     GLog.severe("Can't reset watch key. Exiting!");
                     return;
                 }
-                eventSender.send(Command.CHANGE_EVENT_TYPE, subproject);
             }
         } catch (final IOException e) {
             GLog.severe(e);

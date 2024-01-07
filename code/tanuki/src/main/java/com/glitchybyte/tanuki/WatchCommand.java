@@ -7,9 +7,6 @@ import com.glitchybyte.glib.GPaths;
 import com.glitchybyte.glib.GShutdownMonitor;
 import com.glitchybyte.glib.GStrings;
 import com.glitchybyte.glib.concurrent.GTaskRunnerService;
-import com.glitchybyte.glib.concurrent.event.GEvent;
-import com.glitchybyte.glib.concurrent.event.GEventLink;
-import com.glitchybyte.glib.concurrent.event.GEventReceiver;
 import com.glitchybyte.glib.process.GOSInterface;
 import com.glitchybyte.glib.terminal.GTerminal;
 
@@ -23,7 +20,6 @@ import java.util.Map;
 public final class WatchCommand extends Command {
 
     private final Map<TanukiConfig.Project, List<Path>> subprojects = new HashMap<>();
-    private final GEventLink eventLink = new GEventLink();
     private String watchingSummary;
 
     public WatchCommand(final Path projectRoot, final TanukiConfig config) {
@@ -33,13 +29,12 @@ public final class WatchCommand extends Command {
     @Override
     public void run() {
         collectDirectoriesToWatch();
-        try (final GTaskRunnerService runner = new GTaskRunnerService();
-            final GEventReceiver eventReceiver = eventLink.createEventReceiver(this::changeHandler)
-                    .subscribeTo(CHANGE_EVENT_TYPE)
-        ) {
+        try (final GTaskRunnerService runner = new GTaskRunnerService()) {
             for (final var entry: subprojects.entrySet()) {
-                eventLink.send(CHANGE_EVENT_TYPE, entry.getKey());
-                runner.start(new WatchBuild(entry.getKey(), entry.getValue(), eventLink));
+                final TanukiConfig.Project subproject = entry.getKey();
+                final List<Path> paths = entry.getValue();
+                changeHandler(subproject);
+                runner.start(new WatchBuild(this::changeHandler, subproject, paths));
             }
             GShutdownMonitor.createShutdownMonitor().awaitShutdown();
         } catch (final InterruptedException e) {
@@ -79,8 +74,7 @@ public final class WatchCommand extends Command {
         watchingSummary = sb.toString();
     }
 
-    private void changeHandler(final GEvent event) {
-        final TanukiConfig.Project subproject = event.getDataAs(TanukiConfig.Project.class);
+    private void changeHandler(final TanukiConfig.Project subproject) {
         // Build.
         final Integer buildExitCode = build(subproject);
         if (GOSInterface.instance.isSuccessfulExitCode(buildExitCode)) {
@@ -93,7 +87,8 @@ public final class WatchCommand extends Command {
             GTerminal.println(GTerminal.text(GStrings.format("Build error! (code: %d)", buildExitCode), Colors.error));
         }
         // Watch summary.
-        GTerminal.println("-".repeat(64));
+        GTerminal.println("%s< %s >%s", "-".repeat(60), GTerminal.text(getTime(), Colors.highlight), "----");
         GTerminal.println(watchingSummary);
     }
+
 }

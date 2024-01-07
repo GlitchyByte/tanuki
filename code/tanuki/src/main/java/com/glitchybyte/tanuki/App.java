@@ -1,8 +1,9 @@
-// Copyright 2023 GlitchyByte
+// Copyright 2023-2024 GlitchyByte
 // SPDX-License-Identifier: Apache-2.0
 
 package com.glitchybyte.tanuki;
 
+import com.glitchybyte.glib.log.GLog;
 import com.glitchybyte.glib.terminal.GTerminal;
 
 import java.nio.file.Path;
@@ -10,6 +11,7 @@ import java.nio.file.Path;
 public final class App implements Runnable {
 
     public static void main(final String[] args) {
+        GLog.setupDefaultRootConsoleHandler(true);
         if (args.length == 0) {
             printUsage();
             return;

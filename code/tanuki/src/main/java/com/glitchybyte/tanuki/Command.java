@@ -10,10 +10,16 @@ import com.glitchybyte.glib.terminal.GTerminal;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public abstract class Command implements Runnable {
 
-    public static final String CHANGE_EVENT_TYPE = "change";
+    private static final DateTimeFormatter timeFormatter =
+            DateTimeFormatter.ofPattern("h:mm:ss a", Locale.US)
+                    .withZone(ZoneOffset.systemDefault());
 
     protected final Path projectRoot;
     protected final TanukiConfig config;
@@ -54,5 +60,9 @@ public abstract class Command implements Runnable {
                 GOSInterface.instance.makeCommand(subproject.copy), projectRoot);
         copyResult.output.forEach(line -> GTerminal.println(GTerminal.text(line, Colors.text)));
         return copyResult.exitCode;
+    }
+
+    protected String getTime() {
+        return timeFormatter.format(Instant.now());
     }
 }
