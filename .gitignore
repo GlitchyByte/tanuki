@@ -2,5 +2,6 @@
 .idea/
 .vscode/
 
-# grun.
-grun
+# Build dirs.
+build.cmake/
+bin/

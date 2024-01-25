@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Copyright 2024 GlitchyByte
-# SPDX-License-Identifier: Apache-2.0
+# Copyright 2023-2024 GlitchyByte
+# SPDX-License-Identifier: MIT-0
 
-# Build.
+# Builds project.
 
 # [Setup]
 set -u # Exit with an error if a variable is used without being set.
@@ -15,10 +15,63 @@ cd "${script_dir}"
 . ./_gcolors
 
 # [Main]
-cd code
-./gradlew :tanuki:nativeCompile
-echo "Binary at: ${c_bold}${cf_white}code/tanuki/build/native/nativeCompile/tanuki${c_reset}"
+# Usage.
+printUsage() {
+  echo "Usage: build [Debug|Release|MinSizeRel|RelWithDebInfo] [clean]"
+  cd "${calling_dir}"
+  exit 1
+}
+
+# Accept 1 or more parameters.
+if [ $# -lt 1 ]; then
+  printUsage
+fi
+
+# If there is more than 1 parameter, the 2nd must be "clean".
+if [ $# -gt 1 ]; then
+  if [ "$2" == "clean" ]; then
+    readonly clean="yes"
+  else
+    printUsage
+  fi
+else
+  readonly clean="no"
+fi
+
+# Capture valid flavor.
+readonly flavor="$1"
+if [[ "${flavor}" != "Debug" && "${flavor}" != "Release" && "${flavor}" != "MinSizeRel" && "${flavor}" != "RelWithDebInfo" ]]; then
+  printUsage
+fi
+
+# Dir constants.
+cd "${script_dir}/code"
+readonly buildConfigDir="build.cmake"
+readonly binDir="bin"
+
+if [ "$clean" == "yes" ]; then
+  echo "${c_bold}${cf_black}Refreshing configuration...${c_reset}"
+  # Remove build dir.
+  if [ -d "${buildConfigDir}" ]; then
+    rm -dr "${buildConfigDir}"
+  fi
+  # Clean bin dir.
+  if [ -d "${binDir}" ]; then
+    rm -dr "${binDir}"
+    mkdir "${binDir}"
+  fi
+fi
+
+# Configure.
+echo "${c_bold}${cf_black}Configuring: ${cf_white}${flavor}${c_reset}"
+cmake -DCMAKE_BUILD_TYPE=${flavor} -B "${buildConfigDir}" -S .
+
+# Build.
+echo "${c_bold}${cf_black}Building: ${cf_white}${flavor}${c_reset}"
+cmake --build "${buildConfigDir}" --config ${flavor} --parallel
+
+# Done!
+echo "${cf_green}${c_bold}Build done!${c_reset}"
 
 # [Teardown]
 cd "${calling_dir}"
-echo "${c_bold}${cf_green}Done!${c_reset}"

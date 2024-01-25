@@ -2,12 +2,16 @@
 # Copyright 2022-2023 GlitchyByte
 # SPDX-License-Identifier: MIT
 
-# _gcolors v1.2.0
+# _gcolors v1.2.1
 
 # Find out terminal color support.
-readonly _tput_colors="$(tput colors 2>/dev/null)"
-if [[ -n "${_tput_colors}" && "${_tput_colors}" != "0" ]]; then
-  readonly term_color_count="${_tput_colors}"
+if [[ -t 1 ]]; then
+  readonly _tput_colors="$(tput colors 2>/dev/null)"
+  if [[ -n "${_tput_colors}" && "${_tput_colors}" != "0" ]]; then
+    readonly term_color_count="${_tput_colors}"
+  else
+    readonly term_color_count="0"
+  fi
 else
   readonly term_color_count="0"
 fi

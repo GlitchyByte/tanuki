@@ -1,0 +1,98 @@
+name: make-release
+run-name: Makes a release for tanuki
+on:
+  workflow_dispatch:
+env:
+  PROJECT_NAME: tanuki
+  BUILD_TYPE: MinSizeRel
+  VERSION_FILE_PATH: ${{ github.workspace }}/version
+  GH_TOKEN: ${{ github.token }}
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        run: |
+          version="v$(head -n 1 ${{ env.VERSION_FILE_PATH }})"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Delete version if it exists
+        run: gh release delete ${{ steps.version.outputs.version }} --cleanup-tag -y || true
+
+      - name: Delay between delete and create
+        run: sleep 2
+
+      - name: Create release
+        run: gh release create ${{ steps.version.outputs.version }} -t "${{ steps.version.outputs.version }}" -F release.md
+
+      - name: Keep 10 releases
+        run: |
+          releases=$(gh release list)
+          releaseCount=$(echo "$releases" | wc -l)
+          keep=10
+          if [ "$releaseCount" -gt "$keep" ]; then
+            extra=$((releaseCount - keep))
+            tags=$(echo "$releases" | tail -n $extra | cut -f3)
+            for tag in $tags; do
+              gh release delete ${tag} --cleanup-tag -y
+            done
+          fi
+
+  release_artifacts:
+    needs: create_release
+    runs-on: ${{ matrix.os }}
+    env:
+      VERSION: ${{ needs.create_release.outputs.version }}
+
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          cd code
+          cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -B build.cmake -S .
+          cmake --build build.cmake --config ${{ env.BUILD_TYPE }} --parallel
+        # Output Linux: ./code/bin/<project>
+        # Output Windows: ./code/bin/${{ env.BUILD_TYPE }}/<project>.exe
+
+      - name: Zip Linux
+        if: matrix.os == 'ubuntu-latest'
+        env:
+          ZIP_NAME: ${{ env.PROJECT_NAME }}-linux-x64.tar.gz
+          BIN: code/bin
+          PROJECT_BIN: ${{ env.PROJECT_NAME }}
+        run: |
+          tar -czf ${{ env.ZIP_NAME }} -C ${{ env.BIN }} ${{ env.PROJECT_BIN }}
+          gh release upload ${{ env.VERSION }} ${{ env.ZIP_NAME }} --clobber
+
+      - name: Zip macOS
+        if: matrix.os == 'macos-latest'
+        env:
+          ZIP_NAME: ${{ env.PROJECT_NAME }}-macos-x64.tar.gz
+          BIN: code/bin
+          PROJECT_BIN: ${{ env.PROJECT_NAME }}
+        run: |
+          tar -czf ${{ env.ZIP_NAME }} -C ${{ env.BIN }} ${{ env.PROJECT_BIN }}
+          gh release upload ${{ env.VERSION }} ${{ env.ZIP_NAME }} --clobber
+
+      - name: Zip Windows
+        if: matrix.os == 'windows-latest'
+        env:
+          ZIP_NAME: ${{ env.PROJECT_NAME }}-windows-x64.zip
+          BIN: code/bin/${{ env.BUILD_TYPE }}
+          PROJECT_BIN: ${{ env.PROJECT_NAME }}.exe
+        run: |
+          tar -czf ${{ env.ZIP_NAME }} -C ${{ env.BIN }} ${{ env.PROJECT_BIN }}
+          gh release upload ${{ env.VERSION }} ${{ env.ZIP_NAME }} --clobber
