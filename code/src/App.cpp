@@ -10,11 +10,10 @@
 #include "WatchCommand.h"
 #include "App.h"
 
-gb::console::color_t const textColor { gb::console::rgb(1, 1, 1) };
-gb::console::color_t const highlightColor { gb::console::rgb(5, 5, 5) };
 gb::console::color_t const cmdColor { gb::console::rgb(3, 5, 3) };
 gb::console::color_t const argColor { gb::console::rgb(0, 2, 0) };
 gb::console::color_t const errorColor { gb::console::rgb(5, 1, 1) };
+gb::console::color_t const doneColor { gb::console::rgb(1, 5, 3) };
 
 void printUsage() noexcept {
     std::string const text { gb::strings::unindent(R"===(
@@ -83,6 +82,6 @@ int App::run(std::vector<std::string_view> const& args) noexcept {
         command = std::make_unique<WatchCommand>();
     }
     command->run();
-    std::cout << "Done!" << std::endl;
+    std::cout << std::endl << gb::console::colorText("Done!", doneColor) << std::endl;
     return 0;
 }
