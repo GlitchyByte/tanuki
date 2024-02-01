@@ -1,4 +1,4 @@
-// Copyright 2023 GlitchyByte
+// Copyright 2023-2024 GlitchyByte
 // SPDX-License-Identifier: Apache-2.0
 
 #pragma once
@@ -41,8 +41,8 @@ namespace gb {
 
         /**
          * Awaits for a shutdown or expiration of the given timeout.
-         *
-         * <p>If a shutdown has been triggered, the method will exit fast.
+         * <p>
+         * If a shutdown has been triggered, the method will exit fast.
          *
          * @param timeout Time to wait for shutdown.
          */
@@ -50,8 +50,8 @@ namespace gb {
 
         /**
          * Awaits for a shutdown.
-         *
-         * <p>If a shutdown has been triggered, the method will exit fast.
+         * <p>
+         * If a shutdown has been triggered, the method will exit fast.
          */
         void awaitShutdown() noexcept;
 

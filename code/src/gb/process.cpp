@@ -1,4 +1,4 @@
-// Copyright 2023 GlitchyByte
+// Copyright 2023-2024 GlitchyByte
 // SPDX-License-Identifier: Apache-2.0
 
 #include "gb/process.h"
@@ -33,12 +33,12 @@ namespace gb::process {
         return false;
     }
 
-    bool execute(std::string_view const& command, std::optional<std::filesystem::path> const& workDir,
+    bool execute(std::string_view const& command, std::filesystem::path const* workDir,
             std::deque<std::string>* lines, int* exitCode,
             std::function<bool(std::string const&)> const& filter) {
         auto const& originalDir { std::filesystem::current_path() };
-        if (workDir.has_value()) {
-            std::filesystem::current_path(workDir.value());
+        if (workDir != nullptr) {
+            std::filesystem::current_path(*workDir);
         }
         std::string redirectedCommand { command };
         redirectedCommand += " 2>&1";
