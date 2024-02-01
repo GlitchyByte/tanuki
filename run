@@ -24,16 +24,22 @@ name=$1
 # Regroup arguments.
 shift
 args=()
-for arg in "$@"; do
-  args+=("$arg")
-done
+if [ "$#" -gt 0 ]; then
+  for arg in "$@"; do
+    args+=("$arg")
+  done
+fi
 
 # Build.
 ./build MinSizeRel
 
 # Run.
 echo "${c_bold}${cf_black}Running: ${cf_white}${name}${c_reset}"
-"./code/bin/${name}" "${args[@]}"
+if [ "$#" -gt 0 ]; then
+  "./code/bin/${name}" "${args[@]}"
+else
+  "./code/bin/${name}"
+fi
 
 # [Teardown]
 cd "${calling_dir}"
