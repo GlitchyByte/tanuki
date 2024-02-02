@@ -46,6 +46,7 @@ void printUsage() noexcept {
                 }
               ]
             }
+
         )===") };
     std::string const usage { gb::ReplaceableVars()
             .add("app", gb::console::colorText("tanuki", cmdColor))
@@ -74,14 +75,20 @@ int App::run(std::vector<std::string_view> const& args) noexcept {
         return 1;
     }
     std::unique_ptr<Command> command;
-    if (params.isImmediate()) {
-        command = std::make_unique<ImmediateCommand>(params.getWatchDir(), params.getAction());
-    } else if (params.getCommand() == "run") {
-        command = std::make_unique<RunCommand>();
-    } else { //if (params.getCommand() == "watch") {
-        command = std::make_unique<WatchCommand>();
+    try {
+        if (params.isImmediate()) {
+            command = std::make_unique<ImmediateCommand>(params.getWatchDir(), params.getAction());
+        } else if (params.getCommand() == "run") {
+            command = std::make_unique<RunCommand>(params.getConfigFile());
+        } else { //if (params.getCommand() == "watch") {
+            command = std::make_unique<WatchCommand>(params.getConfigFile());
+        }
+    } catch (std::exception const& e) {
+        printError(e.what());
+        printUsage();
+        return 2;
     }
-    command->run();
+    command->execute();
     std::cout << std::endl << gb::console::colorText("Done!", doneColor) << std::endl;
     return 0;
 }

@@ -18,7 +18,7 @@ void ImmediateCommand::watchCallback() noexcept {
     }
 }
 
-void ImmediateCommand::run() noexcept {
+void ImmediateCommand::execute() noexcept {
     gb::DirectoryWatcher watcher { watchDir, gb::functions::methodWrapper(&ImmediateCommand::watchCallback), this };
     watcher.start();
     shutdownMonitor->awaitShutdown();

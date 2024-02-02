@@ -5,11 +5,7 @@
 
 class Command {
 public:
-    virtual void run() noexcept = 0;
+    virtual void execute() noexcept = 0;
 
     virtual ~Command() = default;
-};
-
-class CoreCommand : public Command {
-public:
 };

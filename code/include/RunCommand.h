@@ -4,11 +4,11 @@
 #pragma once
 
 #include "gb.h"
-#include "Command.h"
+#include "CoreCommand.h"
 
 class RunCommand : public CoreCommand {
 public:
-    explicit RunCommand() noexcept;
+    explicit RunCommand(std::filesystem::path const& configFile) : CoreCommand(configFile) {}
 
-    void run() noexcept override;
+    void execute() noexcept override;
 };
