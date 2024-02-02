@@ -3,10 +3,6 @@
 
 #include "RunCommand.h"
 
-RunCommand::RunCommand() noexcept {
-    //
-}
-
-void RunCommand::run() noexcept {
-    //
+void RunCommand::execute() noexcept {
+    run();
 }

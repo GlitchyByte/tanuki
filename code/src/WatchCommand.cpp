@@ -3,10 +3,6 @@
 
 #include "WatchCommand.h"
 
-WatchCommand::WatchCommand() noexcept {
-    //
-}
-
-void WatchCommand::run() noexcept {
+void WatchCommand::execute() noexcept {
     //
 }
