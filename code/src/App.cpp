@@ -3,17 +3,13 @@
 
 #include <iostream>
 #include "gb.h"
+#include "Colors.h"
 #include "AppParams.h"
 #include "Command.h"
 #include "ImmediateCommand.h"
 #include "RunCommand.h"
 #include "WatchCommand.h"
 #include "App.h"
-
-gb::console::color_t const cmdColor { gb::console::rgb(3, 5, 3) };
-gb::console::color_t const argColor { gb::console::rgb(0, 2, 0) };
-gb::console::color_t const errorColor { gb::console::rgb(5, 1, 1) };
-gb::console::color_t const doneColor { gb::console::rgb(1, 5, 3) };
 
 void printUsage() noexcept {
     std::string const text { gb::strings::unindent(R"===(
@@ -31,7 +27,20 @@ void printUsage() noexcept {
                         it simply exits.
           ${watch_dir}   Directory to watch.
           ${action}      Action to run when directory is modified.
+        )===") };
+    std::string const usage { gb::ReplaceableVars()
+            .add("app", gb::console::colorText("tanuki", Colors::cmdColor))
+            .add("option1", gb::console::colorText("run", Colors::argColor))
+            .add("option2", gb::console::colorText("watch", Colors::argColor))
+            .add("config_file", gb::console::colorText("config_file", Colors::argColor))
+            .add("watch_dir", gb::console::colorText("watch_dir", Colors::argColor))
+            .add("action", gb::console::colorText("action", Colors::argColor))
+            .replace(text) };
+    std::cout << usage;
+}
 
+void printConfigExample() noexcept {
+    std::string const text { gb::strings::unindent(R"===(
           Tanuki json configuration file schema is as follows:
             {
               "modules": [
@@ -48,24 +57,17 @@ void printUsage() noexcept {
             }
 
         )===") };
-    std::string const usage { gb::ReplaceableVars()
-            .add("app", gb::console::colorText("tanuki", cmdColor))
-            .add("option1", gb::console::colorText("run", argColor))
-            .add("option2", gb::console::colorText("watch", argColor))
-            .add("config_file", gb::console::colorText("config_file", argColor))
-            .add("watch_dir", gb::console::colorText("watch_dir", argColor))
-            .add("action", gb::console::colorText("action", argColor))
-            .replace(text) };
-    std::cout << usage;
+    std::cout << text;
 }
 
 void printError(std::string_view const& error) noexcept {
-    std::cerr << gb::console::colorText(error, errorColor) << std::endl;
+    std::cerr << gb::console::colorText(error, Colors::errorColor) << std::endl;
 }
 
 int App::run(std::vector<std::string_view> const& args) noexcept {
     if (args.size() <= 1) {
         printUsage();
+        printConfigExample();
         return 0;
     }
     AppParams const params { args };
@@ -85,10 +87,15 @@ int App::run(std::vector<std::string_view> const& args) noexcept {
         }
     } catch (std::exception const& e) {
         printError(e.what());
-        printUsage();
+        printConfigExample();
         return 2;
     }
-    command->execute();
-    std::cout << std::endl << gb::console::colorText("Done!", doneColor) << std::endl;
+    try {
+        command->execute();
+    } catch (std::exception const& e) {
+        printError(e.what());
+        return 3;
+    }
+    std::cout << std::endl << gb::console::colorText("Done!", Colors::doneColor) << std::endl;
     return 0;
 }
