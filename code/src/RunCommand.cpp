@@ -4,5 +4,8 @@
 #include "RunCommand.h"
 
 void RunCommand::execute() {
-    runAll();
+    // Run all.
+    for (auto const& module: tanukiConfig.modules) {
+        run(module);
+    }
 }

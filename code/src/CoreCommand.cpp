@@ -15,12 +15,6 @@ CoreCommand::CoreCommand(std::filesystem::path const& configFile) {
     data.get_to(tanukiConfig);
 }
 
-void CoreCommand::runAll() {
-    for (auto const& module: tanukiConfig.modules) {
-        run(module);
-    }
-}
-
 void CoreCommand::run(TanukiConfigModule const& module) {
     std::filesystem::path moduleDir { configRoot };
     moduleDir.append(module.rootDir);
