@@ -13,7 +13,7 @@ public:
 
     void watchCallback() noexcept;
 
-    void execute() noexcept override;
+    void execute() override;
 
     std::shared_ptr<gb::ShutdownMonitor> shutdownMonitor { gb::ShutdownMonitor::create() };
     std::filesystem::path const watchDir;

@@ -10,5 +10,5 @@ class RunCommand : public CoreCommand {
 public:
     explicit RunCommand(std::filesystem::path const& configFile) : CoreCommand(configFile) {}
 
-    void execute() noexcept override;
+    void execute() override;
 };

@@ -12,7 +12,8 @@ public:
     explicit CoreCommand(std::filesystem::path const& configFile);
 
 protected:
-    void run() noexcept;
+    void runAll();
+    void run(TanukiConfigModule const& module);
 
     std::filesystem::path configRoot;
     TanukiConfig tanukiConfig;
