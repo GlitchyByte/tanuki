@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "gb.h"
 #include "external/nlohmann/json.hpp"
 
 class TanukiConfigModule {
