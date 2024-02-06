@@ -5,6 +5,7 @@
 
 #include <cstdint>
 
+//#define GB_HASH
 #define GB_STRINGS
     #define GB_CONSOLE
 #define GB_FUNCTIONS
@@ -14,6 +15,9 @@
 #define GB_SHUTDOWN_MONITOR
 #define GB_DIRECTORY_WATCHER
 
+#ifdef GB_HASH
+    #include "gb/hash.h"
+#endif
 #ifdef GB_STRINGS
     #include "gb/strings.h"
     #ifdef GB_CONSOLE
