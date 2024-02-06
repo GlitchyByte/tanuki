@@ -6,6 +6,8 @@
 #include "gb.h"
 #ifdef GB_TERMINAL
 
+#include <string>
+
 namespace gb::terminal {
 
     typedef uint32_t color_t;
