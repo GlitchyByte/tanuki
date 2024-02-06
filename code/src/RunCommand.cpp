@@ -6,6 +6,6 @@
 void RunCommand::execute() {
     // Run all.
     for (auto const& module: tanukiConfig.modules) {
-        run(module);
+        runModule(configRoot, module);
     }
 }
