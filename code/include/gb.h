@@ -7,7 +7,7 @@
 
 //#define GB_HASH
 #define GB_STRINGS
-    #define GB_CONSOLE
+    #define GB_TERMINAL
 #define GB_FUNCTIONS
 #define GB_FILES
 #define GB_PROCESS
@@ -20,8 +20,8 @@
 #endif
 #ifdef GB_STRINGS
     #include "gb/strings.h"
-    #ifdef GB_CONSOLE
-        #include "gb/console.h"
+    #ifdef GB_TERMINAL
+        #include "gb/terminal.h"
     #endif
 #endif
 #ifdef GB_FUNCTIONS

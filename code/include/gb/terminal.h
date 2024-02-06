@@ -4,11 +4,9 @@
 #pragma once
 
 #include "gb.h"
-#ifdef GB_CONSOLE
+#ifdef GB_TERMINAL
 
-#include <string>
-
-namespace gb::console {
+namespace gb::terminal {
 
     typedef uint32_t color_t;
 
@@ -48,4 +46,4 @@ namespace gb::console {
     std::string colorText(std::string_view const& str, color_t const color) noexcept;
 }
 
-#endif // GB_CONSOLE
+#endif // GB_TERMINAL

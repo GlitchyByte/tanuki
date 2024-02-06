@@ -1,14 +1,13 @@
 // Copyright 2023 GlitchyByte
 // SPDX-License-Identifier: Apache-2.0
 
-#include "gb/console.h"
-#ifdef GB_CONSOLE
+#include "gb/terminal.h"
+#ifdef GB_TERMINAL
 
 #include <cassert>
 #include <sstream>
-#include "gb/strings.h"
 
-namespace gb::console {
+namespace gb::terminal {
 
     color_t rgb(color_t const r, color_t const g, color_t const b) noexcept {
         assert(r < 6);
@@ -33,4 +32,4 @@ namespace gb::console {
     }
 }
 
-#endif // GB_CONSOLE
+#endif // GB_TERMINAL
