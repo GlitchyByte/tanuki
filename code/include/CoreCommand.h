@@ -4,16 +4,12 @@
 #pragma once
 
 #include "Command.h"
-#include "TanukiConfig.h"
-#include <filesystem>
 
 class CoreCommand : public Command {
 public:
     explicit CoreCommand(std::filesystem::path const& configFile);
 
 protected:
-    void run(TanukiConfigModule const& module);
-
     std::filesystem::path configRoot;
     TanukiConfig tanukiConfig;
 };

@@ -1,7 +1,7 @@
 // Copyright 2024 GlitchyByte
 // SPDX-License-Identifier: Apache-2.0
 
-#include "CoreCommand.h"
+#include "Command.h"
 #include "gb.h"
 #include "Colors.h"
 #include <iostream>
@@ -13,6 +13,13 @@ void Command::runAction(std::string const& action, std::filesystem::path const* 
     std::deque<std::string> lines;
     gb::process::execute(action, workDir, &lines);
     for (auto const& line: lines) {
-        std::cout << gb::console::colorText(line, Colors::textColor) << std::endl;
+        std::cout << gb::terminal::colorText(line, Colors::textColor) << std::endl;
     }
+}
+
+void Command::runModule(std::filesystem::path const& configRoot, TanukiConfigModule const& module) noexcept {
+    std::filesystem::path moduleDir { configRoot };
+    moduleDir.append(module.rootDir);
+    moduleDir = gb::files::canonicalPath(moduleDir);
+    runAction(module.action, &moduleDir);
 }
