@@ -13,7 +13,7 @@ void Command::runAction(std::string const& action, std::filesystem::path const* 
     std::deque<std::string> lines;
     gb::process::execute(action, workDir, &lines);
     for (auto const& line: lines) {
-        std::cout << gb::terminal::colorText(line, Colors::textColor) << std::endl;
+        std::cout << gb::terminal::colorText(line, Colors::text) << std::endl;
     }
 }
 

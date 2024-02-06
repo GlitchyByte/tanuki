@@ -29,12 +29,12 @@ void printUsage() noexcept {
           ${action}      Action to run when directory is modified.
         )===") };
     std::string const usage { gb::ReplaceableVars()
-            .add("app", gb::terminal::colorText("tanuki", Colors::cmdColor))
-            .add("option1", gb::terminal::colorText("run", Colors::argColor))
-            .add("option2", gb::terminal::colorText("watch", Colors::argColor))
-            .add("config_file", gb::terminal::colorText("config_file", Colors::argColor))
-            .add("watch_dir", gb::terminal::colorText("watch_dir", Colors::argColor))
-            .add("action", gb::terminal::colorText("action", Colors::argColor))
+            .add("app", gb::terminal::colorText("tanuki", Colors::cmd))
+            .add("option1", gb::terminal::colorText("run", Colors::arg))
+            .add("option2", gb::terminal::colorText("watch", Colors::arg))
+            .add("config_file", gb::terminal::colorText("config_file", Colors::arg))
+            .add("watch_dir", gb::terminal::colorText("watch_dir", Colors::arg))
+            .add("action", gb::terminal::colorText("action", Colors::arg))
             .replace(text) };
     std::cout << usage;
 }
@@ -61,7 +61,7 @@ void printConfigExample() noexcept {
 }
 
 void printError(std::string_view const& error) noexcept {
-    std::cerr << gb::terminal::colorText(error, Colors::errorColor) << std::endl;
+    std::cerr << gb::terminal::colorText(error, Colors::error) << std::endl;
 }
 
 int App::run(std::vector<std::string_view> const& args) noexcept {
@@ -96,6 +96,6 @@ int App::run(std::vector<std::string_view> const& args) noexcept {
         printError(e.what());
         return 3;
     }
-    std::cout << std::endl << gb::terminal::colorText("Done!", Colors::doneColor) << std::endl;
+    std::cout << std::endl << gb::terminal::colorText("Done!", Colors::success) << std::endl;
     return 0;
 }

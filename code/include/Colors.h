@@ -6,9 +6,11 @@
 #include "gb.h"
 
 namespace Colors {
-    extern gb::console::color_t const textColor;
-    extern gb::console::color_t const cmdColor;
-    extern gb::console::color_t const argColor;
-    extern gb::console::color_t const errorColor;
-    extern gb::console::color_t const doneColor;
+    extern gb::terminal::color_t const text;
+    extern gb::terminal::color_t const highlight;
+    extern gb::terminal::color_t const cmd;
+    extern gb::terminal::color_t const arg;
+    extern gb::terminal::color_t const error;
+    extern gb::terminal::color_t const success;
+    extern gb::terminal::color_t const heading;
 }
