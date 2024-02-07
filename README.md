@@ -1,66 +1,62 @@
+# WORK IN PROGRESS!
+
 # tanuki
 
-![Version](https://img.shields.io/badge/Version-1.1.0-blue)
-![Java](https://img.shields.io/badge/Java-21-orange)
+![Version](https://img.shields.io/badge/Version-2.0.0-blue)
 
-Project portfolio watcher and builder.
+Utility for watching directories and running actions when they change.
 
-I made this one for myself mostly. But here is how you can use it.
+The utility can be used in immediate mode and directly watch and run an action, or with a json config file that allows you to have modules with directory groups and an action each.
 
-## Build and copy binary
+## Use it!
 
-You'll need [Oracle's GraalVM JDK 21](https://www.oracle.com/java/technologies/downloads/#graalvmjava21). You can use an installer script in [my repo here](https://github.com/GlitchyByte/java-install). It's the easiest way to install it.
+    tanuki <run|watch> [config_file]
+    tanuki -i watch_dir [action]
 
-    ./build
+    run         Runs actions in all modules.
+    watch       Watches modules for changes and runs actions on them.
+    config_file Tanuki config file. If empty, "tanuki.json" in the current
+                  directory is used.
+    -i          Immediate mode. In this mode tanuki watches a single directory and
+                  runs the action when it is modified. if no action is specified
+                  it simply exits.
+    watch_dir   Directory to watch.
+    action      Action to run when directory is modified.
+    Tanuki json configuration file schema is as follows:
+      {
+        "modules": [
+          {
+            "name": "My module name",
+            "rootDir": "path/to/module",
+            "watchDirs": [
+              "watched1",
+              "subdir/watched2"
+            ],
+            "action": "echo 'This will run in rootDir.'"
+          }
+        ]
+      }
 
-At the end of the build process it will tell you where `tanuki` binary was generated. Copy it to your project, don't commit it! Add it to your `.gitignore`.
+## Get it!
 
-## Usage
+It is highly recommended that you build it yourself on your platform.
 
-The command help is self explanatory:
+If you want a pre-compiled binary, check the [latest release](https://github.com/GlitchyByte/tanuki/releases) for your platform.
+These are built using GitHub Actions on GitHub Runners and produce larger binaries than if you build locally.
 
-    tanuki <build|watch> [config_file]
+## Build it!
 
-    build       Force builds projects.
-    watch       Watches projects for changes and builds them.
-    config_file Tanuki config file. If empty, "tanuki.json" in
-                    the current directory is used.
-    -h, --help  Show usage.
+Clone this repo.
 
-The config file is better explained with an example:
+Then, on macOS or Linux:
 
-```json
-{
-  "projects": [
-    {
-      // A display name for this subproject.
-      "name": "Backend",
-      // Subproject directory relative to config file.
-      "projectDir": "code/backend",
-      // An array of directories, relative to projectDir, to watch for changes.
-      "watchDirs": [
-        "src"
-      ],
-      // Command or script to run on build, when a change is detected, relative to projectDir.
-      "build": "npm run build",
-      // Command or script to run on copy, on successful build, relative to config file.
-      "copy": "./tanuki.backend.copy"
-    },
-    // You can have as many subprojects as you want.
-    {
-      "name": "Frontend",
-      "projectDir": "code/frontend",
-      "watchDirs": [
-        "pages",
-        "public",
-        "src"
-      ],
-      "build": "npm run build",
-      "copy": "./tanuki.frontend.copy"
-    }
-  ]
-}
-```
+    ./build MinSizeRel clean
 
-Just pay attention when a directory is either `relative to config file` or `relative to projectDir`.
-And remove the comments, json doesn't allow comments, they are just explanatory in this document.
+On Windows:
+
+    cmake -DCMAKE_BUILD_TYPE=MinSizeRel -B build.cmake -S .
+    cmake --build build.cmake --config MinSizeRel --parallel
+
+### Receive your tasty binary!
+
+After building, `tanuki` executable is in the `code/bin` directory.
