@@ -1,4 +1,4 @@
-// Copyright 2023 GlitchyByte
+// Copyright 2023-2024 GlitchyByte
 // SPDX-License-Identifier: Apache-2.0
 
 #include "gb/strings.h"
@@ -130,21 +130,23 @@ namespace gb::strings {
         return ss.str();
     }
 
-    std::string& insertThousandSeparatorsInPlace(std::string& str) noexcept {
-        size_t const period { str.find('.') };
-        size_t const start { period == std::string::npos ? str.length() : period };
-        size_t const finish { static_cast<size_t>(str.starts_with('-') ? 4 : 3) };
+    std::string addThousandSeparators(std::string const& str) noexcept {
+        std::string number { str };
+        size_t const period { number.find('.') };
+        size_t const start { period == std::string::npos ? number.length() : period };
+        size_t const finish { static_cast<size_t>(number.starts_with('-') ? 4 : 3) };
         size_t index { start };
         while (index > finish) {
             index -= 3;
-            str.insert(index, ",");
+            number.insert(index, ",");
         }
-        return str;
+        return number;
     }
 
-    std::string insertThousandSeparators(std::string_view const& str) noexcept {
-        std::string newStr { str };
-        return insertThousandSeparatorsInPlace(newStr);
+    std::string fromTime(std::time_t const& time, std::string const& format) noexcept {
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&time), format.c_str());
+        return ss.str();
     }
 
     constinit int DefaultPrecision { -1 };

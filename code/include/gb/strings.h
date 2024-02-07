@@ -99,22 +99,23 @@ namespace gb::strings {
     std::string fromVector(std::vector<T> const& vector, std::string_view const& separator = ", ") noexcept;
 
     /**
-     * Inserts thousand separator in the given string that must be a numeric representation.
-     * <p>
-     * Insertion happens in place. The return string is the same as the parameter string.
+     * Adds thousand separators in the given string that must be a numeric representation.
      *
      * @param str String numeric representation.
      * @return The numeric representation with thousand separators.
      */
-    std::string& insertThousandSeparatorsInPlace(std::string& str) noexcept;
+    [[nodiscard]]
+    std::string addThousandSeparators(std::string_view const& str) noexcept;
 
     /**
-     * Inserts thousand separator in the given string that must be a numeric representation.
+     * Returns a string representation of the given time.
      *
-     * @param str String numeric representation.
-     * @return The numeric representation with thousand separators.
+     * @param time Time to convert to string.
+     * @param format Time format.
+     * @return String representation of the given time.
      */
-    std::string insertThousandSeparators(std::string_view const& str) noexcept;
+    [[nodiscard]]
+    std::string fromTime(std::time_t const& time, std::string const& format) noexcept;
 
     /**
      * Default precision for numeric values.
@@ -163,8 +164,7 @@ namespace gb::strings {
 
     template <std::integral T>
     std::string fromIntegral(T const value) noexcept {
-        std::string str { std::to_string(value) };
-        return insertThousandSeparatorsInPlace(str);
+        return addThousandSeparators(std::to_string(value));
     }
 
     template <std::floating_point T>
@@ -177,7 +177,7 @@ namespace gb::strings {
             ss << std::fixed << std::setprecision(precision) << value;
             str = ss.str();
         }
-        return insertThousandSeparators(str);
+        return addThousandSeparators(str);
     }
 }
 
