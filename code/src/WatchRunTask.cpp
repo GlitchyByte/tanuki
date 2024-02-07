@@ -7,6 +7,8 @@
 #include <filesystem>
 #include <iostream>
 
+std::mutex callbackLock;
+
 WatchRunTask::WatchRunTask(std::filesystem::path const& configRoot, TanukiConfigModule const& module,
         std::string const& summary) noexcept {
     this->configRoot = configRoot;
@@ -29,6 +31,7 @@ void WatchRunTask::watch() noexcept {
 }
 
 void WatchRunTask::watchCallback() noexcept {
+    std::lock_guard<std::mutex> lock { callbackLock };
     WatchCommand::printRunningModule(module);
     Command::runModule(configRoot, module);
     WatchCommand::printTimeSeparator();
