@@ -12,4 +12,8 @@ public:
 protected:
     std::filesystem::path configRoot;
     TanukiConfig tanukiConfig;
+    std::string summary;
+
+private:
+    std::string summarizeWatchConfig() const;
 };

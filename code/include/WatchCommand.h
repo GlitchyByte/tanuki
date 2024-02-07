@@ -8,7 +8,10 @@
 
 class WatchCommand : public CoreCommand {
 public:
-    explicit WatchCommand(std::filesystem::path const& configFile) : CoreCommand(configFile) {}
+    static void printRunningModule(TanukiConfigModule const& module) noexcept;
+    static void printTimeSeparator() noexcept;
 
-    void execute() noexcept override;
+    explicit WatchCommand(std::filesystem::path const& configFile) : CoreCommand(configFile) {};
+
+    void execute() override;
 };
