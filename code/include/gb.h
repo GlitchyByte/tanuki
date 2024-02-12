@@ -5,6 +5,16 @@
 
 #include <cstdint>
 
+#ifdef __APPLE__
+    #define GB_IS_MACOS
+#endif
+#ifdef __linux__
+    #define GB_IS_LINUX
+#endif
+#ifdef _WIN32
+    #define GB_IS_WINDOWS
+#endif
+
 //#define GB_HASH
 #define GB_STRINGS
     #define GB_TERMINAL

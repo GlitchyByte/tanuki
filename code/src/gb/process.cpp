@@ -6,7 +6,7 @@
 
 #include <cstdio>
 
-#ifdef _WIN32
+#ifdef GB_IS_WINDOWS
 #define popen _popen
 #define pclose _pclose
 #define WIFEXITED(x) (x != -1)
@@ -16,7 +16,7 @@
 namespace gb::process {
 
     bool readLine(FILE* file, std::string& line) {
-        #ifdef _WIN32
+        #ifdef GB_IS_WINDOWS
         size_t const eolSize = 2;
         #else
         size_t const eolSize = 1;
