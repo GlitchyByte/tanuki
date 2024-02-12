@@ -6,6 +6,8 @@
 #include "gb.h"
 #ifdef GB_FUNCTIONS
 
+#include <functional>
+
 namespace gb::functions {
 
     /**

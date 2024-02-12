@@ -6,6 +6,7 @@
 #include "gb.h"
 #ifdef GB_STRINGS
 
+#include <vector>
 #include <sstream>
 #include <iomanip>
 
