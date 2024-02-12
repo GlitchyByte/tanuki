@@ -21,13 +21,13 @@ std::string CoreCommand::summarizeWatchConfig() const {
         ss << gb::terminal::colorText("§", Colors::heading) << ' ' << gb::terminal::colorText(module.name, Colors::highlight);
         std::filesystem::path moduleDir { configRoot };
         moduleDir.append(module.rootDir);
+        moduleDir = gb::files::canonicalPath(moduleDir);
         if (!std::filesystem::is_directory(moduleDir)) {
             std::ostringstream ess;
             ess << "In module \"" << module.name << "\" rootDir \"" << module.rootDir << "\" doesn't exist!";
             throw std::invalid_argument(ess.str());
         }
         ss << " (" << gb::terminal::colorText(moduleDir.string(), Colors::text) << ')' << std::endl;
-        std::vector<std::filesystem::path> paths;
         for (auto const& subPath: module.watchDirs) {
             ss << "  " << gb::terminal::colorText("»", Colors::highlight)
                 << ' ' << gb::terminal::colorText(subPath, Colors::text) << std::endl;
@@ -38,7 +38,6 @@ std::string CoreCommand::summarizeWatchConfig() const {
                 ess << "In module \"" << module.name << "\" watchDir \"" << subPath << "\" doesn't exist!";
                 throw std::invalid_argument(ess.str());
             }
-            paths.push_back(path);
         }
     }
     return ss.str();

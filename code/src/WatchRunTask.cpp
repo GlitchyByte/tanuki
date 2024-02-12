@@ -16,6 +16,7 @@ WatchRunTask::WatchRunTask(std::filesystem::path const& configRoot, TanukiConfig
     this->summary = summary;
     std::filesystem::path moduleDir { configRoot };
     moduleDir.append(module.rootDir);
+    moduleDir = gb::files::canonicalPath(moduleDir);
     for (auto const& subPath: module.watchDirs) {
         std::filesystem::path path { moduleDir };
         path.append(subPath);
