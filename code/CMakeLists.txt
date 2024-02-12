@@ -3,7 +3,7 @@
 
 cmake_minimum_required(VERSION 3.26)
 
-set(IS_MAC CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+set(IS_MACOS CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 set(IS_LINUX CMAKE_SYSTEM_NAME STREQUAL "Linux")
 set(IS_WINDOWS CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
@@ -26,7 +26,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
     message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
-    if (${IS_LINUX} OR ${IS_MAC})
+    if (${IS_LINUX} OR ${IS_MACOS})
         # Linux and macOS.
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto -ffunction-sections -fdata-sections")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -flto -ffunction-sections -fdata-sections")
@@ -45,7 +45,7 @@ endif ()
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 add_executable(${APP} ${SOURCES})
 
-if (${IS_MAC})
+if (${IS_MACOS})
     target_link_libraries(${APP}
             PUBLIC "-framework CoreFoundation"
             PUBLIC "-framework CoreServices"
