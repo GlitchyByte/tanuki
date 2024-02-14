@@ -15,12 +15,13 @@
 
 namespace gb::process {
 
+#ifdef GB_IS_WINDOWS
+    constexpr size_t const eolSize = 2;
+#else
+    constexpr size_t const eolSize = 1;
+#endif
+
     bool readLine(FILE* file, std::string& line) {
-        #ifdef GB_IS_WINDOWS
-        size_t const eolSize = 2;
-        #else
-        size_t const eolSize = 1;
-        #endif
         char buffer[1024];
         line.clear();
         while (fgets(buffer, sizeof(buffer), file) != NULL) {

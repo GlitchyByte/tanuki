@@ -121,7 +121,7 @@ namespace gb::strings {
     /**
      * Default precision for numeric values.
      */
-    extern constinit int DefaultPrecision;
+    constexpr int DefaultPrecision { -1 };
 
     /**
      * Converts an integral value to a human representation.

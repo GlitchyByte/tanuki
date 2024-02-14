@@ -1,4 +1,4 @@
-// Copyright 2023 GlitchyByte
+// Copyright 2023-2024 GlitchyByte
 // SPDX-License-Identifier: Apache-2.0
 
 #pragma once
@@ -26,7 +26,7 @@ namespace gb::terminal {
      * @return The color code.
      */
     [[nodiscard]]
-    extern color_t rgb(color_t const r, color_t const g, color_t const b) noexcept;
+    color_t rgb(color_t const r, color_t const g, color_t const b) noexcept;
 
     /**
      * Converts a grey step into a color code.
@@ -35,7 +35,7 @@ namespace gb::terminal {
      * @return The color code.
      */
     [[nodiscard]]
-    extern color_t grey(color_t const step) noexcept;
+    color_t grey(color_t const step) noexcept;
 
     /**
      * Returns a string that represents the given string in the given color.
