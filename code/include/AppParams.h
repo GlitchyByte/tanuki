@@ -6,6 +6,15 @@
 #include "gb.h"
 
 class AppParams {
+private:
+    bool valid;
+    std::string error;
+    bool immediate;
+    std::string command;
+    std::filesystem::path configFile;
+    std::filesystem::path watchDir;
+    std::optional<std::string> action;
+
 public:
     explicit AppParams(std::vector<std::string_view> const& args) noexcept;
 
@@ -32,13 +41,4 @@ public:
 
     [[nodiscard]]
     std::string string() const noexcept;
-
-private:
-    bool valid;
-    std::string error;
-    bool immediate;
-    std::string command;
-    std::filesystem::path configFile;
-    std::filesystem::path watchDir;
-    std::optional<std::string> action;
 };

@@ -18,6 +18,11 @@ namespace gb {
      * Utility to monitor SIGINT and SIGTERM for proper application shutdown.
      */
     class ShutdownMonitor {
+    private:
+        std::atomic<bool> isShuttingDown { false };
+        std::mutex shutdownLock;
+        std::condition_variable shuttingDown;
+
     public:
         /**
          * Creates a monitor that will get notified when it's time for an orderly shutdown.
@@ -67,10 +72,6 @@ namespace gb {
 
 
     private:
-        std::atomic<bool> isShuttingDown { false };
-        std::mutex shutdownLock;
-        std::condition_variable shuttingDown;
-
         explicit ShutdownMonitor(bool const shuttingDown) noexcept : isShuttingDown(shuttingDown) {}
     };
 }

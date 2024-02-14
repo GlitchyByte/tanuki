@@ -25,24 +25,6 @@ namespace gb {
      * Directory watcher.
      */
     class DirectoryWatcher {
-    public:
-        explicit DirectoryWatcher(std::vector<std::filesystem::path> const& paths, WatchCallback const& callback,
-                void* callbackContext = nullptr) noexcept : paths(paths), callback(callback), callbackContext(callbackContext) {};
-
-        explicit DirectoryWatcher(std::filesystem::path const& path, WatchCallback const& callback,
-                void* callbackContext = nullptr) noexcept;
-
-        ~DirectoryWatcher() noexcept;
-
-        [[nodiscard]]
-        bool isWatching() const noexcept;
-
-        void callCallback() noexcept;
-
-        void start() noexcept;
-
-        void stop() noexcept;
-
     private:
         std::vector<std::filesystem::path> paths;
         WatchCallback callback;
@@ -60,6 +42,24 @@ namespace gb {
         int inotifyFd;
         int cancelPipeFds[2];
 #endif
+
+    public:
+        explicit DirectoryWatcher(std::vector<std::filesystem::path> const& paths, WatchCallback const& callback,
+                void* callbackContext = nullptr) noexcept : paths(paths), callback(callback), callbackContext(callbackContext) {};
+
+        explicit DirectoryWatcher(std::filesystem::path const& path, WatchCallback const& callback,
+                void* callbackContext = nullptr) noexcept;
+
+        ~DirectoryWatcher() noexcept;
+
+        [[nodiscard]]
+        bool isWatching() const noexcept;
+
+        void callCallback() noexcept;
+
+        void start() noexcept;
+
+        void stop() noexcept;
     };
 }
 

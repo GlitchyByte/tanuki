@@ -6,14 +6,15 @@
 #include "Command.h"
 
 class CoreCommand : public Command {
-public:
-    explicit CoreCommand(std::filesystem::path const& configFile);
-
 protected:
     std::filesystem::path configRoot;
     TanukiConfig tanukiConfig;
     std::string summary;
 
+public:
+    explicit CoreCommand(std::filesystem::path const& configFile);
+
 private:
+    [[nodiscard]]
     std::string summarizeWatchConfig() const;
 };

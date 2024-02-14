@@ -7,6 +7,13 @@
 #include "TanukiConfig.h"
 
 class WatchRunTask {
+private:
+    std::shared_ptr<gb::ShutdownMonitor> shutdownMonitor { gb::ShutdownMonitor::create() };
+    std::filesystem::path configRoot;
+    TanukiConfigModule module;
+    std::string summary;
+    std::vector<std::filesystem::path> paths;
+
 public:
     explicit WatchRunTask(std::filesystem::path const& configRoot, TanukiConfigModule const& module,
             std::string const& summary) noexcept;
@@ -15,10 +22,4 @@ public:
 
 private:
     void watchCallback() noexcept;
-
-    std::shared_ptr<gb::ShutdownMonitor> shutdownMonitor { gb::ShutdownMonitor::create() };
-    std::filesystem::path configRoot;
-    TanukiConfigModule module;
-    std::string summary;
-    std::vector<std::filesystem::path> paths;
 };

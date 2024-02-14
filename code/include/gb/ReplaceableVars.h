@@ -14,6 +14,9 @@ namespace gb {
      * Class to hold variable names and their values for string replacement.
      */
     class ReplaceableVars {
+    private:
+        std::map<std::string, std::string> vars;
+
     public:
         ReplaceableVars() noexcept = default;
 
@@ -50,9 +53,6 @@ namespace gb {
          */
         [[nodiscard]]
         std::string string() const noexcept;
-
-    private:
-        std::map<std::string, std::string> vars;
     };
 }
 
