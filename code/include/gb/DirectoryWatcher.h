@@ -9,7 +9,13 @@
 #include <vector>
 #include <atomic>
 #include <mutex>
+#ifdef GB_IS_MACOS
 #include <CoreServices/CoreServices.h>
+#endif
+#ifdef GB_IS_LINUX
+#include <sys/inotify.h>
+#include <thread>
+#endif
 
 namespace gb {
 
@@ -43,11 +49,17 @@ namespace gb {
         void* callbackContext;
         std::mutex watchLock;
         std::atomic<bool> _isWatching { false };
-        std::string queueName;
+#ifdef GB_IS_MACOS
         CFMutableArrayRef cfPaths;
         FSEventStreamContext streamContext { 0, this, nullptr, nullptr, nullptr };
         FSEventStreamRef stream;
         dispatch_queue_t queue;
+#endif
+#ifdef GB_IS_LINUX
+        std::thread watchThread;
+        int inotifyFd;
+        int cancelPipeFds[2];
+#endif
     };
 }
 

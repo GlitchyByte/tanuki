@@ -28,19 +28,22 @@ namespace gb {
         callback(callbackContext);
     }
 
+#ifdef GB_IS_MACOS
     void eventCallback(ConstFSEventStreamRef const stream, void* const callbackInfo, size_t const eventPathCount,
             void* const eventPaths, FSEventStreamEventFlags const* const eventFlags,
             FSEventStreamEventId const* const eventIds) noexcept {
         auto watcher = static_cast<DirectoryWatcher*>(callbackInfo);
         watcher->callCallback();
     }
+#endif
 
     void DirectoryWatcher::start() noexcept {
         std::unique_lock<std::mutex> lock { watchLock };
         if (isWatching()) {
             return;
         }
-        queueName = "com.glitchybyte.tanuki.directorywatcher.queue" + std::to_string(queueId++);
+#ifdef GB_IS_MACOS
+        std::string const queueName { "com.glitchybyte.tanuki.directorywatcher.queue" + std::to_string(queueId++) };
         cfPaths = CFArrayCreateMutable(nullptr, static_cast<CFIndex>(paths.size()), &kCFTypeArrayCallBacks);
         for (auto const& path: paths) {
             CFStringRef cfPath = CFStringCreateWithCString(nullptr, path.c_str(), kCFStringEncodingUTF8);
@@ -52,6 +55,48 @@ namespace gb {
         queue = dispatch_queue_create(queueName.c_str(), DISPATCH_QUEUE_SERIAL);
         FSEventStreamSetDispatchQueue(stream, queue);
         FSEventStreamStart(stream);
+#endif
+#ifdef GB_IS_LINUX
+        inotifyFd = inotify_init();
+        if (inotifyFd == -1) {
+            return;
+        }
+        for (auto const& path: paths) {
+            int const wd = inotify_add_watch(inotifyFd, path.c_str(), IN_MODIFY | IN_CREATE | IN_DELETE);
+            if (wd == -1) {
+                close(inotifyFd);
+                return;
+            }
+        }
+        if (pipe(cancelPipeFds) == -1) {
+            close(inotifyFd);
+            return;
+        }
+        watchThread = std::thread([this]() {
+            while (true) {
+                fd_set fdset;
+                FD_ZERO(&fdset);
+                FD_SET(inotifyFd, &fdset);
+                FD_SET(cancelPipeFds[0], &fdset);
+                int const nfds = std::max(inotifyFd, cancelPipeFds[0]) + 1;
+                int const readyFdCount = select(nfds, &fdset, NULL, NULL, NULL);
+                if ((readyFdCount == -1) || (FD_ISSET(cancelPipeFds[0], &fdset))) {
+                    // Error or cancel signal.
+                    break;
+                } else if (FD_ISSET(inotifyFd, &fdset)) {
+                    char buffer[8 * 1024];
+                    auto const bytesRead = read(inotifyFd, buffer, sizeof(buffer));
+                    if (bytesRead == -1) {
+                        break;
+                    }
+                    callCallback();
+                }
+            }
+            close(cancelPipeFds[0]);
+            close(cancelPipeFds[1]);
+            close(inotifyFd);
+        });
+#endif
         _isWatching = true;
     }
 
@@ -60,11 +105,18 @@ namespace gb {
         if (!isWatching()) {
             return;
         }
+#ifdef GB_IS_MACOS
         FSEventStreamStop(stream);
         FSEventStreamInvalidate(stream);
         FSEventStreamRelease(stream);
         dispatch_release(queue);
         CFRelease(cfPaths);
+#endif
+#ifdef GB_IS_LINUX
+        char const buffer = 'x';
+        [[maybe_unused]] auto result = write(cancelPipeFds[1], &buffer, 1);
+        watchThread.join();
+#endif
         _isWatching = false;
     }
 }
