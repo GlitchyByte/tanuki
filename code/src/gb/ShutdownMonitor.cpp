@@ -1,4 +1,4 @@
-// Copyright 2023 GlitchyByte
+// Copyright 2023-2024 GlitchyByte
 // SPDX-License-Identifier: Apache-2.0
 
 #include "gb/ShutdownMonitor.h"
@@ -8,7 +8,6 @@
 
 namespace gb {
 
-    constinit bool _false { false };
     std::atomic<bool> generalShutdownInitiated { false };
     std::mutex generalShutdownLock;
     std::vector<std::shared_ptr<ShutdownMonitor>> shutdownMonitors;

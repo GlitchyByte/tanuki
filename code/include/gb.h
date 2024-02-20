@@ -23,8 +23,11 @@
 #define GB_PROCESS
 #define GB_REPLACEABLE_VARS
 #define GB_SHUTDOWN_MONITOR
+#define GB_CONCURRENT
+    #define GB_TASK
 #define GB_DIRECTORY_WATCHER
 
+#include "gb/constants.h"
 #ifdef GB_HASH
     #include "gb/hash.h"
 #endif
@@ -48,6 +51,12 @@
 #endif
 #ifdef GB_SHUTDOWN_MONITOR
     #include "gb/ShutdownMonitor.h"
+#endif
+#ifdef GB_CONCURRENT
+    #ifdef GB_TASK
+        #include "gb/concurrent/Task.h"
+        #include "gb/concurrent/TaskRunner.h"
+    #endif
 #endif
 #ifdef GB_DIRECTORY_WATCHER
     #include "gb/DirectoryWatcher.h"
