@@ -18,29 +18,48 @@ protected:
     }
 };
 
-class ValueSetterTask : public gb::concurrent::Task {
+class SimpleTask : public gb::concurrent::Task {
 public:
-    std::atomic<int> value { 1 };
+    std::set<std::string> items;
+    std::mutex itemsLock;
 
 public:
     void action() override {
         started();
-        value = 5;
+        addItem("one");
+    }
+
+    void addItem(std::string const& item) {
+        std::lock_guard<std::mutex> lock { itemsLock };
+        items.insert(item);
     }
 };
 
-TEST_F(TaskRunnerTest, RunnerStartsTask) {
-    std::shared_ptr<ValueSetterTask> task = std::make_shared<ValueSetterTask>();
-    ASSERT_EQ(1, task->value);
+TEST_F(TaskRunnerTest, CanStartTask) {
+    std::shared_ptr<SimpleTask> task = std::make_shared<SimpleTask>();
+    ASSERT_TRUE(task->items.empty());
     runner->start(task);
     task->awaitStop();
-    ASSERT_EQ(5, task->value);
+    ASSERT_TRUE(task->items.contains("one"));
 }
 
-TEST_F(TaskRunnerTest, Dummy) {
-    std::shared_ptr<ValueSetterTask> task = std::make_shared<ValueSetterTask>();
-    ASSERT_EQ(1, task->value);
+class SlowTask : public SimpleTask {
+public:
+    void action() override {
+        started();
+        std::this_thread::sleep_for(std::chrono::milliseconds(400));
+        if (shouldCancel()) {
+            return;
+        }
+        addItem("one");
+    }
+};
+
+TEST_F(TaskRunnerTest, CanCancelTask) {
+    std::shared_ptr<SlowTask> task = std::make_shared<SlowTask>();
+    ASSERT_TRUE(task->items.empty());
     runner->start(task);
+    task->cancel();
     task->awaitStop();
-    ASSERT_NE(4, task->value);
+    ASSERT_FALSE(task->items.contains("one"));
 }
