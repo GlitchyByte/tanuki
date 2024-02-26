@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# Copyright 2024 GlitchyByte
+# SPDX-License-Identifier: MIT-0
+
+# Runs project.
+
+# [Setup]
+set -u # Exit with an error if a variable is used without being set.
+set -e # Exit if any command returns an error.
+# Capture caller directory and script directory.
+readonly calling_dir="${PWD}"
+readonly script_dir="$(cd "$(dirname "$0")" && pwd)"
+# Go to script directory and load utilities.
+cd "${script_dir}"
+. ./_gcolors
+
+# [Main]
+
+# Check for "clean".
+if [ $# -gt 0 ]; then
+  if [ "$1" == "clean" ]; then
+    readonly clean="yes"
+  else
+    readonly clean="no"
+  fi
+else
+  readonly clean="no"
+fi
+
+# Dir constants.
+cd "${script_dir}/code/test"
+readonly buildConfigDir="../build/test.cmake"
+readonly binDir="../build/bin"
+
+# Make sure build exists.
+if [ ! -d "../build" ]; then
+  mkdir "../build"
+fi
+
+if [ "$clean" == "yes" ]; then
+  echo "${c_bold}${cf_black}Refreshing configuration...${c_reset}"
+  # Remove build dir.
+  if [ -d "${buildConfigDir}" ]; then
+    rm -dr "${buildConfigDir}"
+  fi
+  # Clean bin dir.
+  if [ -d "${binDir}" ]; then
+    rm -dr "${binDir}"
+    mkdir "${binDir}"
+  fi
+fi
+
+# Configure.
+echo "${c_bold}${cf_black}Configuring: ${cf_white}MinSizeRel${c_reset}"
+cmake -DCMAKE_BUILD_TYPE=MinSizeRel -B "${buildConfigDir}" -S .
+
+# Build.
+echo "${c_bold}${cf_black}Building: ${cf_white}MinSizeRel${c_reset}"
+cmake --build "${buildConfigDir}" --config MinSizeRel --parallel
+
+# Back to root.
+cd "${calling_dir}"
+
+# Test.
+echo "${c_bold}${cf_black}Testing: ${cf_white}gbtest${c_reset}"
+"./code/build/bin/gbtest"
+
+# [Teardown]
+# Done!
+echo "${cf_green}${c_bold}Testing done!${c_reset}"
