@@ -24,6 +24,7 @@ message(STATUS "Platform: ${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_PROCESSOR}")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 
+# Set flags.
 if (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
     message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
     if (${IS_LINUX} OR ${IS_MACOS})
@@ -52,8 +53,10 @@ if (${IS_MACOS})
     )
 endif ()
 
+# Add all h files in include dir.
 target_include_directories(${APP} PRIVATE include)
 
+# Minimize binary size.
 if ((CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel") AND
         (CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin"))
     # Strip all remaining symbols and relocation information.
@@ -62,4 +65,9 @@ if ((CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRe
             POST_BUILD
             COMMAND strip $<TARGET_FILE:${APP}>
     )
+endif ()
+
+# Add test project if CLion build for code insight.
+if (CLION_BUILD)
+    add_subdirectory(test)
 endif ()

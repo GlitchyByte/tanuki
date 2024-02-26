@@ -46,8 +46,13 @@ fi
 
 # Dir constants.
 cd "${script_dir}/code"
-readonly buildConfigDir="build.cmake"
-readonly binDir="bin"
+readonly buildConfigDir="build/build.cmake"
+readonly binDir="build/bin"
+
+# Make sure build exists.
+if [ ! -d "build" ]; then
+  mkdir "build"
+fi
 
 if [ "$clean" == "yes" ]; then
   echo "${c_bold}${cf_black}Refreshing configuration...${c_reset}"
@@ -70,8 +75,8 @@ cmake -DCMAKE_BUILD_TYPE=${flavor} -B "${buildConfigDir}" -S .
 echo "${c_bold}${cf_black}Building: ${cf_white}${flavor}${c_reset}"
 cmake --build "${buildConfigDir}" --config ${flavor} --parallel
 
-# Done!
-echo "${cf_green}${c_bold}Build done!${c_reset}"
-
 # [Teardown]
 cd "${calling_dir}"
+
+# Done!
+echo "${cf_green}${c_bold}Build done!${c_reset}"

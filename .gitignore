@@ -3,5 +3,4 @@
 .vscode/
 
 # Build dirs.
-build.cmake/
-bin/
+/code/build/

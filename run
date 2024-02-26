@@ -17,7 +17,8 @@ cd "${script_dir}"
 # [Main]
 
 if [ $# -lt 1 ]; then
-  echoerr "Need the name of the project."
+  echoerr "Need project name."
+  exit 1
 fi
 name=$1
 
