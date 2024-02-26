@@ -16,16 +16,13 @@ namespace gb::concurrent {
         _shouldCancel = true;
     }
 
+    void Task::awaitStop() noexcept {
+        std::unique_lock<std::mutex> lock { stateLock };
+        stateChangedSignal.wait(lock, [this]{ return (state == TaskState::Canceled) || (state == TaskState::Finished); });
+    }
+
     TaskRunner* Task::getTaskRunner() const noexcept {
         return runner;
-    }
-
-    bool Task::shouldCancel() const noexcept {
-        return _shouldCancel;
-    }
-
-    void Task::setTaskRunner(TaskRunner* const newRunner) noexcept {
-        runner = newRunner;
     }
 
     void Task::started() noexcept {
@@ -35,6 +32,14 @@ namespace gb::concurrent {
         }
         state = TaskState::Started;
         stateChangedSignal.notify_all();
+    }
+
+    bool Task::shouldCancel() const noexcept {
+        return _shouldCancel;
+    }
+
+    void Task::setTaskRunner(TaskRunner* const newRunner) noexcept {
+        runner = newRunner;
     }
 
     void Task::canceled() noexcept {
@@ -63,11 +68,6 @@ namespace gb::concurrent {
     void Task::awaitStart() noexcept {
         std::unique_lock<std::mutex> lock { stateLock };
         stateChangedSignal.wait(lock, [this]{ return state != TaskState::Created; });
-    }
-
-    void Task::awaitStop() noexcept {
-        std::unique_lock<std::mutex> lock { stateLock };
-        stateChangedSignal.wait(lock, [this]{ return (state == TaskState::Canceled) || (state == TaskState::Finished); });
     }
 }
 

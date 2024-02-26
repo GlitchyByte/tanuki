@@ -52,17 +52,19 @@ namespace gb::concurrent {
 
         void cancel() noexcept;
 
+        void awaitStop() noexcept;
+
     protected:
         [[nodiscard]]
         TaskRunner* getTaskRunner() const noexcept;
+
+        void started() noexcept;
 
         [[nodiscard]]
         bool shouldCancel() const noexcept;
 
     private:
         void setTaskRunner(TaskRunner* const newRunner) noexcept;
-
-        void started() noexcept;
 
         void canceled() noexcept;
 
@@ -71,8 +73,6 @@ namespace gb::concurrent {
         void awaitState(TaskState const desiredState) noexcept;
 
         void awaitStart() noexcept;
-
-        void awaitStop() noexcept;
     };
 }
 
