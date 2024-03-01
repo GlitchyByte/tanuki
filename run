@@ -32,14 +32,15 @@ if [ "$#" -gt 0 ]; then
 fi
 
 # Build.
-./build MinSizeRel
+# ./build MinSizeRel
+./build Debug
 
 # Run.
 echo "${c_bold}${cf_black}Running: ${cf_white}${name}${c_reset}"
 if [ "$#" -gt 0 ]; then
-  "./code/bin/${name}" "${args[@]}"
+  "./code/build/bin/${name}" "${args[@]}"
 else
-  "./code/bin/${name}"
+  "./code/build/bin/${name}"
 fi
 
 # [Teardown]
