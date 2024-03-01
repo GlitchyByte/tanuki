@@ -55,9 +55,6 @@ namespace gb::concurrent {
         threadController.join();
     }
 
-//    template<class TTask>
-//    requires std::is_base_of<Task, TTask>::value
-//    bool TaskRunner::start(std::shared_ptr<TTask> const& task) noexcept {
     bool TaskRunner::start(std::shared_ptr<Task> const& task) noexcept {
         std::lock_guard<std::mutex> lock { tasksLock };
         if (!isActive()) {
@@ -86,6 +83,11 @@ namespace gb::concurrent {
         for (auto const& task: tasks) {
             task->cancel();
         }
+    }
+
+    void TaskRunner::awaitAll() noexcept {
+        std::unique_lock<std::mutex> lock { tasksLock };
+        isEmptySignal.wait(lock, [this]{ return tasks.empty(); });
     }
 
     void TaskRunner::removeTask(std::shared_ptr<Task> const& task) noexcept {

@@ -8,7 +8,6 @@
 
 #include "Task.h"
 #include <set>
-#include <atomic>
 #include <mutex>
 #include <thread>
 
@@ -41,12 +40,11 @@ namespace gb::concurrent {
 
         void shutdown() noexcept;
 
-//        template<class TTask>
-//        requires std::is_base_of<Task, TTask>::value
-//        bool start(std::shared_ptr<TTask> const& task) noexcept;
         bool start(std::shared_ptr<Task> const& task) noexcept;
 
         void cancelAll() noexcept;
+
+        void awaitAll() noexcept;
 
     private:
         void removeTask(std::shared_ptr<Task> const& task) noexcept;

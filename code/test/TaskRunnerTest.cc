@@ -23,8 +23,8 @@ public:
     std::set<std::string> items;
     std::mutex itemsLock;
 
-public:
-    void action() override {
+protected:
+    void action() noexcept override {
         started();
         addItem("one");
     }
@@ -44,10 +44,10 @@ TEST_F(TaskRunnerTest, CanStartTask) {
 }
 
 class SlowTask : public SimpleTask {
-public:
-    void action() override {
+protected:
+    void action() noexcept override {
         started();
-        std::this_thread::sleep_for(std::chrono::milliseconds(400));
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
         if (shouldCancel()) {
             return;
         }
@@ -62,4 +62,49 @@ TEST_F(TaskRunnerTest, CanCancelTask) {
     task->cancel();
     task->awaitStop();
     ASSERT_FALSE(task->items.contains("one"));
+}
+
+class CancelableTask : public gb::concurrent::Task {
+public:
+    static std::set<std::string> items;
+    static std::mutex itemsLock;
+
+protected:
+    static void addItem(std::string const& item) {
+        std::lock_guard<std::mutex> lock { itemsLock };
+        items.insert(item);
+    }
+
+private:
+    std::string const itemToAdd;
+
+public:
+    explicit CancelableTask(std::string const& str) noexcept : itemToAdd(str) {};
+
+protected:
+    void action() noexcept override {
+        started();
+        while (!shouldCancel()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+        addItem(itemToAdd);
+    }
+};
+
+std::set<std::string> CancelableTask::items;
+std::mutex CancelableTask::itemsLock;
+
+TEST_F(TaskRunnerTest, CanCancelAllTasks) {
+    std::shared_ptr<CancelableTask> task1 = std::make_shared<CancelableTask>("one");
+    std::shared_ptr<CancelableTask> task2 = std::make_shared<CancelableTask>("two");
+    std::shared_ptr<CancelableTask> task3 = std::make_shared<CancelableTask>("three");
+    ASSERT_TRUE(CancelableTask::items.empty());
+    runner->start(task1);
+    runner->start(task2);
+    runner->start(task3);
+    runner->cancelAll();
+    runner->awaitAll();
+    ASSERT_TRUE(CancelableTask::items.contains("one"));
+    ASSERT_TRUE(CancelableTask::items.contains("two"));
+    ASSERT_TRUE(CancelableTask::items.contains("three"));
 }

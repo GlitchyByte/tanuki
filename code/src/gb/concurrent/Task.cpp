@@ -8,6 +8,10 @@ namespace gb::concurrent {
 
     std::atomic<uint64_t> Task::nextTaskId { 0 };
 
+    TaskState Task::getState() const noexcept {
+        return state;
+    }
+
     void Task::cancel() noexcept {
         std::lock_guard<std::mutex> lock { stateLock };
         if (state != TaskState::Started) {
@@ -18,7 +22,12 @@ namespace gb::concurrent {
 
     void Task::awaitStop() noexcept {
         std::unique_lock<std::mutex> lock { stateLock };
-        stateChangedSignal.wait(lock, [this]{ return (state == TaskState::Canceled) || (state == TaskState::Finished); });
+        stateChangedSignal.wait(lock, [this]{ return isStopped(); });
+    }
+
+    bool Task::isStopped() const noexcept {
+        TaskState const currentState = state;
+        return (currentState == TaskState::Canceled) || (currentState == TaskState::Finished);
     }
 
     TaskRunner* Task::getTaskRunner() const noexcept {

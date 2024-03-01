@@ -15,7 +15,7 @@ endif ()
 # Main binary to build.
 set(APP "gbtest")
 
-#file(STRINGS "../../version" APP_VERSION LIMIT_COUNT 1)
+file(STRINGS "../../version" APP_VERSION LIMIT_COUNT 1)
 project(${APP} VERSION "${APP_VERSION}")
 message(STATUS "Project: ${APP} v${APP_VERSION}")
 message(STATUS "Platform: ${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_PROCESSOR}")

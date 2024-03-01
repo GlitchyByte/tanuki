@@ -6,8 +6,6 @@
 #include "gb.h"
 #ifdef GB_TASK
 
-#include "TaskRunner.h"
-#include <atomic>
 #include <mutex>
 #include <thread>
 
@@ -32,14 +30,14 @@ namespace gb::concurrent {
     private:
         static std::atomic<uint64_t> nextTaskId;
 
-    public:
-        uint64_t const taskId;
+    protected:
+        std::mutex stateLock;
 
     private:
+        uint64_t const taskId;
         std::thread thread;
         TaskRunner* runner { nullptr };
-        TaskState state { TaskState::Created };
-        std::mutex stateLock;
+        std::atomic<TaskState> state { TaskState::Created };
         std::condition_variable stateChangedSignal;
         std::atomic<bool> _shouldCancel { false };
 
@@ -48,13 +46,17 @@ namespace gb::concurrent {
 
         virtual ~Task() noexcept = default;
 
-        virtual void action() = 0;
+        TaskState getState() const noexcept;
 
         void cancel() noexcept;
 
         void awaitStop() noexcept;
 
+        bool isStopped() const noexcept;
+
     protected:
+        virtual void action() noexcept = 0;
+
         [[nodiscard]]
         TaskRunner* getTaskRunner() const noexcept;
 
