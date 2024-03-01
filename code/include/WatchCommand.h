@@ -5,8 +5,14 @@
 
 #include "gb.h"
 #include "CoreCommand.h"
+#include <random>
 
 class WatchCommand : public CoreCommand {
+public:
+    static std::random_device randomDevice;
+    static std::mt19937 random;
+    static std::uniform_int_distribution<int> positionRange;
+
 public:
     static void printRunningModule(TanukiConfigModule const& module) noexcept;
     static void printTimeSeparator() noexcept;

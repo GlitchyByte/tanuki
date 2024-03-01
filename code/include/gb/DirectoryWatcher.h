@@ -26,11 +26,22 @@ namespace gb {
      */
     class DirectoryWatcher {
     private:
+#ifdef GB_IS_MACOS
+        static std::atomic<uint64_t> queueId;
+#endif
+
+    private:
+        class CallbackRunnerTask;
+
+    private:
         std::vector<std::filesystem::path> paths;
         WatchCallback callback;
         void* callbackContext;
         std::mutex watchLock;
         std::atomic<bool> _isWatching { false };
+        std::unique_ptr<gb::concurrent::TaskRunner> runner { std::make_unique<gb::concurrent::TaskRunner>() };
+        std::mutex actionLock;
+        std::shared_ptr<CallbackRunnerTask> actionTask;
 #ifdef GB_IS_MACOS
         CFMutableArrayRef cfPaths;
         FSEventStreamContext streamContext { 0, this, nullptr, nullptr, nullptr };

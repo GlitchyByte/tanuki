@@ -9,6 +9,10 @@
 #include <thread>
 #include <iostream>
 
+std::random_device WatchCommand::randomDevice;
+std::mt19937 WatchCommand::random { randomDevice() };
+std::uniform_int_distribution<int> WatchCommand::positionRange { 0, 59 };
+
 void WatchCommand::printRunningModule(TanukiConfigModule const& module) noexcept {
     std::cout << gb::terminal::colorText("Running", Colors::heading)
         << ": "
@@ -19,11 +23,19 @@ void WatchCommand::printRunningModule(TanukiConfigModule const& module) noexcept
 void WatchCommand::printTimeSeparator() noexcept {
     std::time_t const now = std::time(nullptr);
     std::string const time = gb::strings::fromTime(now, "%I:%M:%S %p");
-    std::cout << std::string(60, '-')
+    int const n1 { positionRange(random) };
+    int const n2 { positionRange(random) };
+    int const n3 { positionRange(random) };
+    std::ostringstream os;
+    os << std::string(60, '-')
         << "< "
         << gb::terminal::colorText(time, Colors::highlight)
-        << " >----"
-        << std::endl;
+        << " >----";
+    std::string line { os.str() };
+    line[n1] = 'o';
+    line[n2] = 'o';
+    line[n3] = 'O';
+    std::cout << line << std::endl;
 }
 
 void startWatch(std::filesystem::path const& configRoot, TanukiConfigModule const& module, std::string const& summary) {

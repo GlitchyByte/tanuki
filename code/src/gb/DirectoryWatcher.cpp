@@ -6,7 +6,51 @@
 
 namespace gb {
 
-    std::atomic<uint64_t> queueId { 0 };
+#ifdef GB_IS_MACOS
+    std::atomic<uint64_t> DirectoryWatcher::queueId { 0 };
+#endif
+
+    class DirectoryWatcher::CallbackRunnerTask : public gb::concurrent::Task {
+    private:
+        DirectoryWatcher* watcher;
+        std::chrono::time_point<std::chrono::system_clock> timeToCall;
+
+    public:
+        explicit CallbackRunnerTask(DirectoryWatcher* const watcher) noexcept;
+
+        bool resetTimer() noexcept;
+
+    protected:
+        void action() noexcept override;
+    };
+
+    DirectoryWatcher::CallbackRunnerTask::CallbackRunnerTask(DirectoryWatcher* const watcher) noexcept {
+        this->watcher = watcher;
+        resetTimer();
+    }
+
+    bool DirectoryWatcher::CallbackRunnerTask::resetTimer() noexcept {
+        std::lock_guard<std::mutex> lock { stateLock };
+        if (isStopped()) {
+            return false;
+        }
+        std::chrono::time_point<std::chrono::system_clock> const now = std::chrono::system_clock::now();
+        std::chrono::seconds const oneSecond { 1 };
+        timeToCall = now + oneSecond;
+        return true;
+    }
+
+    void DirectoryWatcher::CallbackRunnerTask::action() noexcept {
+        started();
+        while (!shouldCancel()) {
+            std::chrono::time_point<std::chrono::system_clock> const now = std::chrono::system_clock::now();
+            if (timeToCall <= now) {
+                watcher->callback(watcher->callbackContext);
+                return;
+            }
+            std::this_thread::sleep_until(timeToCall);
+        }
+    }
 
     DirectoryWatcher::DirectoryWatcher(std::filesystem::path const& path, WatchCallback const& callback,
             void* callbackContext) noexcept {
@@ -25,7 +69,11 @@ namespace gb {
     }
 
     void DirectoryWatcher::callCallback() noexcept {
-        callback(callbackContext);
+        std::lock_guard<std::mutex> lock { actionLock };
+        if (!actionTask || !actionTask->resetTimer()) {
+            actionTask = std::make_shared<CallbackRunnerTask>(this);
+            runner->start(actionTask);
+        }
     }
 
 #ifdef GB_IS_MACOS
