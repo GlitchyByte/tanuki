@@ -7,6 +7,7 @@
 #ifdef GB_TASK
 
 #include <mutex>
+#include <condition_variable>
 #include <thread>
 
 namespace gb::concurrent {
