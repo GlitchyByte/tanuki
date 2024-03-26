@@ -63,6 +63,7 @@ else
   readonly cb_white=$(tput setab 7)
 fi
 
+# Pick from 256 colors.
 color256() {
   if [ "${term_color_count}" -lt "256" ]; then
     echo ""

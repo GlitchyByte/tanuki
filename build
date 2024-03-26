@@ -49,7 +49,7 @@ cd "${script_dir}/code"
 readonly buildConfigDir="build/build.cmake"
 readonly binDir="build/bin"
 
-# Make sure build exists.
+# Make sure build dir exists.
 if [ ! -d "build" ]; then
   mkdir "build"
 fi
