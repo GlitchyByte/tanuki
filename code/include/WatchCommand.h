@@ -14,7 +14,6 @@ public:
     static std::uniform_int_distribution<int> positionRange;
 
 public:
-    static void printRunningModule(TanukiConfigModule const& module) noexcept;
     static void printTimeSeparator() noexcept;
 
     explicit WatchCommand(std::filesystem::path const& configFile) : CoreCommand(configFile) {};

@@ -7,7 +7,7 @@
 #include <filesystem>
 #include <iostream>
 
-std::mutex callbackLock;
+std::mutex WatchRunTask::callbackLock;
 
 WatchRunTask::WatchRunTask(std::filesystem::path const& configRoot, TanukiConfigModule const& module,
         std::string const& summary) noexcept {
@@ -24,7 +24,8 @@ WatchRunTask::WatchRunTask(std::filesystem::path const& configRoot, TanukiConfig
     }
 }
 
-void WatchRunTask::watch() noexcept {
+void WatchRunTask::action() noexcept {
+    started();
     gb::DirectoryWatcher watcher { paths, gb::functions::methodWrapper(&WatchRunTask::watchCallback), this };
     watcher.start();
     shutdownMonitor->awaitShutdown();
@@ -33,7 +34,6 @@ void WatchRunTask::watch() noexcept {
 
 void WatchRunTask::watchCallback() noexcept {
     std::lock_guard<std::mutex> lock { callbackLock };
-    WatchCommand::printRunningModule(module);
     Command::runModule(configRoot, module);
     WatchCommand::printTimeSeparator();
     std::cout << summary << std::endl;

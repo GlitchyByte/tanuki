@@ -5,7 +5,6 @@
 #ifdef GB_PROCESS
 
 #include <cstdio>
-
 #ifdef GB_IS_WINDOWS
 #define popen _popen
 #define pclose _pclose
