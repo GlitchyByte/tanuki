@@ -84,6 +84,16 @@ namespace gb {
         watcher->callCallback();
     }
 #endif
+#ifdef GB_IS_WINDOWS
+    void CALLBACK eventCallback(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped) {
+        if (dwErrorCode != ERROR_SUCCESS) {
+            // Something bad happened, but we don't capture. It works or it doesn't.
+            return;
+        }
+        auto watcher = static_cast<DirectoryWatcher*>(lpOverlapped->Pointer);
+        watcher->callCallback();
+    }
+#endif
 
     void DirectoryWatcher::start() noexcept {
         std::unique_lock<std::mutex> lock { watchLock };
@@ -145,6 +155,55 @@ namespace gb {
             close(inotifyFd);
         });
 #endif
+#ifdef GB_IS_WINDOWS
+        hCancelEvent = CreateEvent(NULL, true, false, NULL);
+        watchThread = std::thread([this]() {
+            std::vector<HANDLE> handles;
+            handles.reserve(paths.size() + 1);
+            handles.push_back(hCancelEvent);
+            for (auto const& path: paths) {
+                HANDLE hDir = CreateFileW(path.wstring().c_str(), FILE_LIST_DIRECTORY,
+                        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING,
+                        FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, NULL);
+                if (hDir == INVALID_HANDLE_VALUE) {
+                    return;
+                }
+                handles.push_back(hDir);
+                if (!ReadDirectoryChangesW(hDir, NULL, 0, true,
+                        FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_FILE_NAME, NULL, &watcherContext,
+                        eventCallback)
+                ) {
+                    for (auto const& handle: handles) {
+                        CloseHandle(handle);
+                    }
+                    return;
+                }
+            }
+            while (true) {
+                DWORD const result = WaitForMultipleObjectsEx(handles.size(), handles.data(), false, INFINITE, true);
+                if (result == WAIT_FAILED) {
+                    break;
+                }
+                if (result == WAIT_OBJECT_0) {
+                    // Cancel event is at index 0. We exit if it's set.
+                    break;
+                }
+                if ((result > WAIT_OBJECT_0) && (result < (MAXIMUM_WAIT_OBJECTS - WAIT_OBJECT_0))) {
+                    int const index = result - WAIT_OBJECT_0;
+                    HANDLE hDir = handles[index];
+                    if (!ReadDirectoryChangesW(hDir, NULL, 0, true,
+                            FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_FILE_NAME, NULL, &watcherContext,
+                            eventCallback)
+                    ) {
+                        break;
+                    }
+                }
+            }
+            for (auto const& handle: handles) {
+                CloseHandle(handle);
+            }
+        });
+#endif
         _isWatching = true;
     }
 
@@ -163,6 +222,10 @@ namespace gb {
 #ifdef GB_IS_LINUX
         char const buffer = 'x';
         [[maybe_unused]] auto result = write(cancelPipeFds[1], &buffer, 1);
+        watchThread.join();
+#endif
+#ifdef GB_IS_WINDOWS
+        SetEvent(hCancelEvent);
         watchThread.join();
 #endif
         _isWatching = false;

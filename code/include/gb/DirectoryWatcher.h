@@ -16,6 +16,10 @@
 #include <sys/inotify.h>
 #include <thread>
 #endif
+#ifdef GB_IS_WINDOWS
+#include <thread>
+#include <windows.h>
+#endif
 
 namespace gb {
 
@@ -52,6 +56,11 @@ namespace gb {
         std::thread watchThread;
         int inotifyFd;
         int cancelPipeFds[2];
+#endif
+#ifdef GB_IS_WINDOWS
+        std::thread watchThread;
+        OVERLAPPED watcherContext { .Pointer = this };
+        HANDLE hCancelEvent { NULL };
 #endif
 
     public:
