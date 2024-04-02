@@ -1,5 +1,3 @@
-# WORK IN PROGRESS!
-
 # tanuki
 
 ![Version](https://img.shields.io/badge/Version-2.0.0-blue)
@@ -22,6 +20,7 @@ The utility can be used in immediate mode and directly watch and run an action, 
                   it simply exits.
     watch_dir   Directory to watch.
     action      Action to run when directory is modified.
+
     Tanuki json configuration file schema is as follows:
       {
         "modules": [
@@ -41,21 +40,14 @@ The utility can be used in immediate mode and directly watch and run an action, 
 
 It is highly recommended that you build it yourself on your platform.
 
-If you want a pre-compiled binary, check the [latest release](https://github.com/GlitchyByte/tanuki/releases) for your platform.
+If you want a pre-compiled binary for macOS, Windows, or Ubuntu, check the [latest releases](https://github.com/GlitchyByte/tanuki/releases).
 These are built using GitHub Actions on GitHub Runners and produce larger binaries than if you build locally.
 
 ## Build it!
 
-Clone this repo.
-
-Then, on macOS or Linux:
+Clone this repo. Then:
 
     ./build MinSizeRel clean
-
-On Windows:
-
-    cmake -DCMAKE_BUILD_TYPE=MinSizeRel -B build.cmake -S .
-    cmake --build build.cmake --config MinSizeRel --parallel
 
 ### Receive your tasty binary!
 

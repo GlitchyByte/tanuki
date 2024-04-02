@@ -67,6 +67,7 @@ void printError(std::string_view const& error) noexcept {
 int App::run(std::vector<std::string_view> const& args) noexcept {
     if (args.size() <= 1) {
         printUsage();
+        std::cout << std::endl;
         printConfigExample();
         return 0;
     }
