@@ -1,5 +1,0 @@
-# macOS/Linux build
-/build text eol=lf
-
-# Windows build
-/build.bat text eol=crlf

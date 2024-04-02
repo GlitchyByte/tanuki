@@ -3,11 +3,6 @@
 
 :: Builds project.
 
-@REM cd code
-@REM cmake -DCMAKE_BUILD_TYPE=MinSizeRel -B build/build.cmake -S .
-@REM cmake --build build/build.cmake --config MinSizeRel --parallel
-@REM cd ..
-
 :: [Setup]
 @echo off
 setlocal enabledelayedexpansion
