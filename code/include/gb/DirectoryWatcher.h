@@ -14,6 +14,7 @@
 #endif
 #ifdef GB_IS_LINUX
 #include <sys/inotify.h>
+#include <sys/epoll.h>
 #include <thread>
 #endif
 #ifdef GB_IS_WINDOWS
@@ -54,8 +55,9 @@ namespace gb {
 #endif
 #ifdef GB_IS_LINUX
         std::thread watchThread;
-        int inotifyFd;
-        int cancelPipeFds[2];
+        int cancelPipeFds[2] {};
+        int inotifyFd { 0 };
+        int epollFd { 0 };
 #endif
 #ifdef GB_IS_WINDOWS
         std::thread watchThread;
@@ -112,6 +114,11 @@ namespace gb {
          * Stops watching for changes.
          */
         void stop() noexcept;
+
+    private:
+#ifdef GB_IS_LINUX
+        bool initializeFds() noexcept;
+#endif
     };
 }
 

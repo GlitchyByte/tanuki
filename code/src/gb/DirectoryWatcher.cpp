@@ -95,6 +95,37 @@ namespace gb {
     }
 #endif
 
+#ifdef GB_IS_LINUX
+    bool DirectoryWatcher::initializeFds() noexcept {
+        if (pipe(cancelPipeFds) == -1) {
+            return false;
+        }
+        inotifyFd = inotify_init();
+        if (inotifyFd == -1) {
+            return false;
+        }
+        for (auto const& path: paths) {
+            int const wd = inotify_add_watch(inotifyFd, path.c_str(), IN_MODIFY | IN_CREATE | IN_DELETE);
+            if (wd == -1) {
+                return false;
+            }
+        }
+        epollFd = epoll_create1(0);
+        if (epollFd == -1) {
+            return false;
+        }
+        epoll_event event { .events = EPOLLIN, .data { .fd = cancelPipeFds[0] } };
+        if (epoll_ctl(epollFd, EPOLL_CTL_ADD, cancelPipeFds[0], &event) == -1) {
+            return false;
+        }
+        event.data.fd = inotifyFd;
+        if (epoll_ctl(epollFd, EPOLL_CTL_ADD, inotifyFd, &event) == -1) {
+            return false;
+        }
+        return true;
+    }
+#endif
+
     void DirectoryWatcher::start() noexcept {
         std::unique_lock<std::mutex> lock { watchLock };
         if (isWatching()) {
@@ -115,44 +146,51 @@ namespace gb {
         FSEventStreamStart(stream);
 #endif
 #ifdef GB_IS_LINUX
-        inotifyFd = inotify_init();
-        if (inotifyFd == -1) {
-            return;
-        }
-        for (auto const& path: paths) {
-            int const wd = inotify_add_watch(inotifyFd, path.c_str(), IN_MODIFY | IN_CREATE | IN_DELETE);
-            if (wd == -1) {
-                close(inotifyFd);
-                return;
+        if (!initializeFds()) {
+            if (cancelPipeFds[0] != 0) {
+                close(cancelPipeFds[0]);
             }
-        }
-        if (pipe(cancelPipeFds) == -1) {
-            close(inotifyFd);
+            if (cancelPipeFds[1] != 0) {
+                close(cancelPipeFds[1]);
+            }
+            if (inotifyFd != 0) {
+                close(inotifyFd);
+            }
+            if (epollFd != 0) {
+                close(epollFd);
+            }
             return;
         }
         watchThread = std::thread([this]() {
+            epoll_event events[16];
             while (true) {
-                fd_set fdset;
-                FD_ZERO(&fdset);
-                FD_SET(inotifyFd, &fdset);
-                FD_SET(cancelPipeFds[0], &fdset);
-                int const nfds = std::max(inotifyFd, cancelPipeFds[0]) + 1;
-                int const readyFdCount = select(nfds, &fdset, NULL, NULL, NULL);
-                if ((readyFdCount == -1) || (FD_ISSET(cancelPipeFds[0], &fdset))) {
-                    // Error or cancel signal.
-                    break;
-                } else if (FD_ISSET(inotifyFd, &fdset)) {
-                    char buffer[8 * 1024];
-                    auto const bytesRead = read(inotifyFd, buffer, sizeof(buffer));
-                    if (bytesRead == -1) {
-                        break;
+                int const readyFdCount = epoll_wait(epollFd, events, 16, -1);
+                if (readyFdCount == -1) {
+                    if (errno == EINTR) {
+                        // Supurious interrupt! We continue.
+                        continue;
                     }
-                    callCallback();
+                    break;
+                }
+                for (int i = 0; i < readyFdCount; ++i) {
+                    if (events[i].data.fd == cancelPipeFds[0]) {
+                        // User exit signal.
+                        goto exitThread;
+                    } else if (events[i].data.fd == inotifyFd) {
+                        char buffer[8 * 1024];
+                        auto const bytesRead = read(inotifyFd, buffer, sizeof(buffer));
+                        if (bytesRead == -1) {
+                            goto exitThread;
+                        }
+                        callCallback();
+                    }
                 }
             }
+            exitThread:
             close(cancelPipeFds[0]);
             close(cancelPipeFds[1]);
             close(inotifyFd);
+            close(epollFd);
         });
 #endif
 #ifdef GB_IS_WINDOWS
