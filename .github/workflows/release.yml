@@ -53,35 +53,42 @@ jobs:
 
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        os: [ ubuntu-latest, macos-latest, macos-14, windows-latest ]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Build
-        run: |
-          cd code
-          cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -B build.cmake -S .
-          cmake --build build.cmake --config ${{ env.BUILD_TYPE }} --parallel
-        # Output Linux: ./code/bin/<project>
-        # Output Windows: ./code/bin/${{ env.BUILD_TYPE }}/<project>.exe
+        run: ./build ${{ env.BUILD_TYPE }} clean
+        # Output Linux: ./code/build/bin/<project>
+        # Output Windows: ./code/build/bin/${{ env.BUILD_TYPE }}/<project>.exe
 
-      - name: Zip Linux
+      - name: Zip Ubuntu
         if: matrix.os == 'ubuntu-latest'
         env:
-          ZIP_NAME: ${{ env.PROJECT_NAME }}-linux-x64.tar.gz
-          BIN: code/bin
+          ZIP_NAME: ${{ env.PROJECT_NAME }}-ubuntu-x64.tar.gz
+          BIN: code/build/bin
           PROJECT_BIN: ${{ env.PROJECT_NAME }}
         run: |
           tar -czf ${{ env.ZIP_NAME }} -C ${{ env.BIN }} ${{ env.PROJECT_BIN }}
           gh release upload ${{ env.VERSION }} ${{ env.ZIP_NAME }} --clobber
 
-      - name: Zip macOS
+      - name: Zip macOS x64
         if: matrix.os == 'macos-latest'
         env:
           ZIP_NAME: ${{ env.PROJECT_NAME }}-macos-x64.tar.gz
-          BIN: code/bin
+          BIN: code/build/bin
+          PROJECT_BIN: ${{ env.PROJECT_NAME }}
+        run: |
+          tar -czf ${{ env.ZIP_NAME }} -C ${{ env.BIN }} ${{ env.PROJECT_BIN }}
+          gh release upload ${{ env.VERSION }} ${{ env.ZIP_NAME }} --clobber
+
+      - name: Zip macOS aarch64
+        if: matrix.os == 'macos-14'
+        env:
+          ZIP_NAME: ${{ env.PROJECT_NAME }}-macos-aarch64.tar.gz
+          BIN: code/build/bin
           PROJECT_BIN: ${{ env.PROJECT_NAME }}
         run: |
           tar -czf ${{ env.ZIP_NAME }} -C ${{ env.BIN }} ${{ env.PROJECT_BIN }}
@@ -91,7 +98,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         env:
           ZIP_NAME: ${{ env.PROJECT_NAME }}-windows-x64.zip
-          BIN: code/bin/${{ env.BUILD_TYPE }}
+          BIN: code/build/bin/${{ env.BUILD_TYPE }}
           PROJECT_BIN: ${{ env.PROJECT_NAME }}.exe
         run: |
           tar -czf ${{ env.ZIP_NAME }} -C ${{ env.BIN }} ${{ env.PROJECT_BIN }}
