@@ -1,4 +1,4 @@
-# Copyright 2024 GlitchyByte
+# Copyright 2023-2024 GlitchyByte
 # SPDX-License-Identifier: MIT-0
 
 cmake_minimum_required(VERSION 3.26)
@@ -32,7 +32,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto -ffunction-sections -fdata-sections")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -flto -ffunction-sections -fdata-sections")
     elseif (${IS_WINDOWS})
-        # Windows has not been tested.
+        # Windows.
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GL")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /GL")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LTCG")

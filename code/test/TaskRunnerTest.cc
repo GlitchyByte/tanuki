@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "gb.h"
+#ifdef GB_TASK
+
 #include <gtest/gtest.h>
 
 class TaskRunnerTest : public ::testing::Test {
@@ -108,3 +110,5 @@ TEST_F(TaskRunnerTest, CanCancelAllTasks) {
     ASSERT_TRUE(CancelableTask::items.contains("two"));
     ASSERT_TRUE(CancelableTask::items.contains("three"));
 }
+
+#endif // GB_TASK
