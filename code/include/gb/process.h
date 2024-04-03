@@ -16,8 +16,8 @@ namespace gb::process {
 
     /**
      * Executes a command and optionally captures its output.
-     * <p>
-     * Output can be filtered before capture, allowing the caller to even process the lines
+     *
+     * <p>Output can be filtered before capture, allowing the caller to even process the lines
      * as they come and not capture. It is advised that the filter lambda be as fast as possible
      * so as to not hold the executed process.
      *
