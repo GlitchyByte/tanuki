@@ -4,6 +4,7 @@
 #pragma once
 
 #include "gb.h"
+#include <optional>
 
 class AppParams {
 private:

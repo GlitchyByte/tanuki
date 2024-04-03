@@ -7,6 +7,7 @@
 #ifdef GB_TASK
 
 #include "Task.h"
+#include <vector>
 #include <set>
 #include <mutex>
 #include <condition_variable>
