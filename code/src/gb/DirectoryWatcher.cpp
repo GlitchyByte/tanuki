@@ -6,7 +6,9 @@
 
 namespace gb {
 
+constexpr uint64_t coalesceSpanInMs = 500; // Milliseconds.
 #ifdef GB_IS_MACOS
+    constexpr double coalesceSpanInS = static_cast<double>(coalesceSpanInMs) / 1000; // Seconds.
     std::atomic<uint64_t> DirectoryWatcher::queueId { 0 };
 #endif
 
@@ -35,8 +37,13 @@ namespace gb {
             return false;
         }
         std::chrono::time_point<std::chrono::system_clock> const now = std::chrono::system_clock::now();
-        std::chrono::seconds const oneSecond { 1 };
-        timeToCall = now + oneSecond;
+#ifdef GB_IS_MACOS
+        // macOS has its own coalescing algorithm. We don't need to coalesce ourselves.
+        timeToCall = now;
+#else
+        std::chrono::milliseconds const coalesceSpan { coalesceSpanInMs };
+        timeToCall = now + coalesceSpan;
+#endif
         return true;
     }
 
@@ -139,8 +146,8 @@ namespace gb {
             CFArrayAppendValue(cfPaths, cfPath);
             CFRelease(cfPath);
         }
-        stream = FSEventStreamCreate(nullptr, eventCallback, &streamContext, cfPaths, kFSEventStreamEventIdSinceNow, 2,
-                kFSEventStreamCreateFlagNone);
+        stream = FSEventStreamCreate(nullptr, eventCallback, &streamContext, cfPaths, kFSEventStreamEventIdSinceNow,
+                coalesceSpanInS, kFSEventStreamCreateFlagNone);
         queue = dispatch_queue_create(queueName.c_str(), DISPATCH_QUEUE_SERIAL);
         FSEventStreamSetDispatchQueue(stream, queue);
         FSEventStreamStart(stream);
