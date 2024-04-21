@@ -51,7 +51,7 @@ configure_file(src/resources.cpp.in generated/src/resources.cpp @ONLY)
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 add_executable(${APP}
         ${SOURCES}
-        ${CMAKE_CURRENT_BINARY_DIR}/generated/src/resources.cpp
+        generated/src/resources.cpp
 )
 
 if (${IS_MACOS})
