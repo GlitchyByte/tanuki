@@ -22,6 +22,7 @@ message(STATUS "Platform: ${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_PROCESSOR}")
 
 # Set C++ standard and binary output dir.
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 
 # Set flags.
@@ -42,9 +43,16 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel
     endif ()
 endif ()
 
+# Add generated sources.
+set(RES_APP_VERSION "${APP_VERSION}")
+configure_file(src/resources.cpp.in generated/src/resources.cpp @ONLY)
+
 # Add all cpp files in src dir.
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
-add_executable(${APP} ${SOURCES})
+add_executable(${APP}
+        ${SOURCES}
+        ${CMAKE_CURRENT_BINARY_DIR}/generated/src/resources.cpp
+)
 
 if (${IS_MACOS})
     target_link_libraries(${APP}

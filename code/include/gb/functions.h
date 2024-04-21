@@ -12,8 +12,8 @@ namespace gb::functions {
 
     /**
      * Template function to wrap a method in a function whose 1st argument is a context void pointer.
-     * <p>
-     * The function will cast that 1st void pointer to an instance of the class and call the method
+     *
+     * <p>The function will cast that 1st void pointer to an instance of the class and call the method
      * with the rest of the arguments.
      *
      * @tparam TClass Class defining the method.

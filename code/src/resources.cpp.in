@@ -1,0 +1,10 @@
+// Copyright 2024 GlitchyByte
+// SPDX-License-Identifier: Apache-2.0
+
+#include "gb.h"
+#include "resources.h"
+
+namespace resources {
+
+    std::string_view const appVersion { R"===(@RES_APP_VERSION@)===" };
+}

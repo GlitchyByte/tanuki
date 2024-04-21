@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include "gb.h"
+#include "resources.h"
 #include "Colors.h"
 #include "AppParams.h"
 #include "Command.h"
@@ -13,6 +14,7 @@
 
 void printUsage() noexcept {
     std::string const text { gb::strings::unindent(R"===(
+        ${version}
         Watch directories and run actions when they are modified.
         Usage:
           ${app} <${option1}|${option2}> [${config_file}]
@@ -28,14 +30,19 @@ void printUsage() noexcept {
           ${watch_dir}   Directory to watch.
           ${action}      Action to run when directory is modified.
         )===") };
-    std::string const usage { gb::ReplaceableVars()
+    std::string version { "v" };
+    version += resources::appVersion;
+    std::string const usage {
+        gb::ReplaceableVars()
+            .add("version", gb::terminal::colorText(version, Colors::text))
             .add("app", gb::terminal::colorText("tanuki", Colors::cmd))
             .add("option1", gb::terminal::colorText("run", Colors::arg))
             .add("option2", gb::terminal::colorText("watch", Colors::arg))
             .add("config_file", gb::terminal::colorText("config_file", Colors::arg))
             .add("watch_dir", gb::terminal::colorText("watch_dir", Colors::arg))
             .add("action", gb::terminal::colorText("action", Colors::arg))
-            .replace(text) };
+            .replace(text)
+    };
     std::cout << usage;
 }
 

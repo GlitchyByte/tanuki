@@ -15,6 +15,7 @@
     #define GB_IS_WINDOWS
 #endif
 
+#define GB_RESHELPER
 //#define GB_HASH
 #define GB_STRINGS
     #define GB_TERMINAL
@@ -28,6 +29,9 @@
 #define GB_DIRECTORY_WATCHER
 
 #include "gb/constants.h"
+#ifdef GB_RESHELPER
+    #include "gb/reshelper.h"
+#endif
 #ifdef GB_HASH
     #include "gb/hash.h"
 #endif
