@@ -1,6 +1,6 @@
 # tanuki
 
-![Version](https://img.shields.io/badge/Version-2.0.0-blue)
+![Version](https://img.shields.io/badge/Version-2.1.0-blue)
 
 Utility for watching directories and running actions when they change.
 
